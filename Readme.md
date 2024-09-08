@@ -1,7 +1,7 @@
 # Проект «Большое путешествие»
 
-* Студент: [Артём Плаксин](https://up.htmlacademy.ru/ecmascript-individual/2/user/2516011).
-* Наставник: `Неизвестно`.
+- Студент: [Артём Плаксин](https://up.htmlacademy.ru/ecmascript-individual/2/user/2516011).
+- Наставник: [Роман Марченко](https://htmlacademy.ru/profile/id505487).
 
 ---
 
