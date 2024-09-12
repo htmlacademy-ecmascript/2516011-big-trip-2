@@ -29,7 +29,7 @@ function createTripSortTemplate() {
           </form>`);
 }
 
-export default class NewTripSortView {
+export default class TripSortView {
   getTemplate() {
     return createTripSortTemplate();
   }

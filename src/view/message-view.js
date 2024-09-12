@@ -4,7 +4,7 @@ function createMessageTemplate() {
   return '<p class="trip-events__msg">Loading...</p>';
 }
 
-export default class NewMessageView {
+export default class MessageView {
   getTemplate() {
     return createMessageTemplate();
   }
