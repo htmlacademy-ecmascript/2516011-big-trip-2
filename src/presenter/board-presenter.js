@@ -16,8 +16,9 @@ const siteFilterElement = siteMainElement.querySelector('.trip-controls__filters
 export default class BoardPresenter {
   ListComponent = new TripEventsListView();
 
-  constructor({ container }) {
+  constructor({ container, PointsModel }) {
     this.container = container;
+    this.PointsModel = PointsModel;
   }
 
   init() {
@@ -27,14 +28,18 @@ export default class BoardPresenter {
     render(this.ListComponent, this.container);
     render(new SortView(), this.ListComponent.getElement());
 
+    const pointsModel = new this.PointsModel();
+    pointsModel.init();
+    this.pointsWithDetails = pointsModel.getPointsWithDetails();
+
     const eventEditorItem = new TripEventsItemView();
     render(eventEditorItem, this.ListComponent.getElement());
-    render(new EventEditorView({ isEventExist: true }), eventEditorItem.getElement());
+    render(new EventEditorView(this.pointsWithDetails[0], this.pointsWithDetails[0].destination, this.pointsWithDetails[0].offers, { isEventExist: true }), eventEditorItem.getElement());
 
-    for (let i = 0; i < 3; i++) {
+    for (const pointWithDetails of this.pointsWithDetails) {
       const tripPointItem = new TripEventsItemView();
       render(tripPointItem, this.ListComponent.getElement());
-      render(new TripPointView(), tripPointItem.getElement());
+      render(new TripPointView(pointWithDetails, pointWithDetails.offers), tripPointItem.getElement());
     }
 
     render(new MessageView(), this.ListComponent.getElement());
