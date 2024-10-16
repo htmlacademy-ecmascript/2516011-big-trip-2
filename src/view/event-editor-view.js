@@ -1,4 +1,4 @@
-import { createElement } from '../render.js';
+import AbstractView from '../framework/view/abstract-view';
 import { POINT_TYPES } from '../const.js';
 
 function createEventEditorTemplate(point = {}, destination, offers, isEventExist = false) {
@@ -135,27 +135,21 @@ function createEventEditorTemplate(point = {}, destination, offers, isEventExist
           </form>`);
 }
 
-export default class EventEditorView {
+export default class EventEditorView extends AbstractView {
+  #point = null;
+  #destination = null;
+  #offers = null;
+  #isEventExist = null;
+
   constructor(point, destination, offers, { isEventExist }) {
-    this.point = point;
-    this.destination = destination;
-    this.offers = offers;
-    this.isEventExist = isEventExist;
+    super();
+    this.#point = point;
+    this.#destination = destination;
+    this.#offers = offers;
+    this.#isEventExist = isEventExist;
   }
 
-  getTemplate() {
-    return createEventEditorTemplate(this.point, this.destination, this.offers, this.isEventExist);
-  }
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
+  get template() {
+    return createEventEditorTemplate(this.#point, this.#destination, this.#offers, this.#isEventExist);
   }
 }
