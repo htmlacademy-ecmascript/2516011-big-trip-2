@@ -3,7 +3,7 @@ import TripFilterView from '../view/trip-filter-view.js';
 import TripEventsListView from '../view/trip-events-list-view.js';
 import TripEventsItemView from '../view/trip-events-item-view.js';
 import SortView from '../view/trip-sort-view.js';
-import EventEditorView from '../view/event-editor-view.js';
+//import EventEditorView from '../view/event-editor-view.js';
 import TripPointView from '../view/trip-point-view.js';
 import MessageView from '../view/message-view.js';
 
@@ -35,16 +35,14 @@ export default class BoardPresenter {
     this.#pointsModel.init();
     this.#pointsWithDetails = this.#pointsModel.pointsWithDetails;
 
-    const eventEditorItem = new TripEventsItemView();
-    render(eventEditorItem, this.#listComponent.element);
-    render(new EventEditorView(this.#pointsWithDetails[0], this.#pointsWithDetails[0].destination, this.#pointsWithDetails[0].offers, { isEventExist: true }), eventEditorItem.element);
-
     for (const pointWithDetails of this.#pointsWithDetails) {
-      const tripPointItem = new TripEventsItemView();
-      render(tripPointItem, this.#listComponent.element);
-      render(new TripPointView(pointWithDetails, pointWithDetails.offers), tripPointItem.element);
+      this.#renderTripPoint(pointWithDetails);
     }
+  }
 
-    render(new MessageView(), this.#listComponent.element);
+  #renderTripPoint(point) {
+    const tripPointItem = new TripEventsItemView();
+    render(tripPointItem, this.#listComponent.element);
+    render(new TripPointView(point, point.offers), tripPointItem.element);
   }
 }
