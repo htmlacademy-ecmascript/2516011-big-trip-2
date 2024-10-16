@@ -14,34 +14,37 @@ const siteHeaderElement = siteMainElement.querySelector('.trip-main');
 const siteFilterElement = siteMainElement.querySelector('.trip-controls__filters');
 
 export default class BoardPresenter {
-  ListComponent = new TripEventsListView();
+  #container = null;
+  #pointsModel = null;
 
-  constructor({ container, PointsModel }) {
-    this.container = container;
-    this.PointsModel = PointsModel;
+  #pointsWithDetails = [];
+  #listComponent = new TripEventsListView();
+
+  constructor({ container, pointsModel }) {
+    this.#container = container;
+    this.#pointsModel = pointsModel;
   }
 
   init() {
     render(new TripInfoView(), siteHeaderElement, RenderPosition.AFTERBEGIN);
     render(new TripFilterView(), siteFilterElement);
 
-    render(this.ListComponent, this.container);
-    render(new SortView(), this.ListComponent.element);
+    render(this.#listComponent, this.#container);
+    render(new SortView(), this.#listComponent.element);
 
-    const pointsModel = new this.PointsModel();
-    pointsModel.init();
-    this.pointsWithDetails = pointsModel.getPointsWithDetails();
+    this.#pointsModel.init();
+    this.#pointsWithDetails = this.#pointsModel.pointsWithDetails;
 
     const eventEditorItem = new TripEventsItemView();
-    render(eventEditorItem, this.ListComponent.element);
-    render(new EventEditorView(this.pointsWithDetails[0], this.pointsWithDetails[0].destination, this.pointsWithDetails[0].offers, { isEventExist: true }), eventEditorItem.element);
+    render(eventEditorItem, this.#listComponent.element);
+    render(new EventEditorView(this.#pointsWithDetails[0], this.#pointsWithDetails[0].destination, this.#pointsWithDetails[0].offers, { isEventExist: true }), eventEditorItem.element);
 
-    for (const pointWithDetails of this.pointsWithDetails) {
+    for (const pointWithDetails of this.#pointsWithDetails) {
       const tripPointItem = new TripEventsItemView();
-      render(tripPointItem, this.ListComponent.element);
+      render(tripPointItem, this.#listComponent.element);
       render(new TripPointView(pointWithDetails, pointWithDetails.offers), tripPointItem.element);
     }
 
-    render(new MessageView(), this.ListComponent.element);
+    render(new MessageView(), this.#listComponent.element);
   }
 }
