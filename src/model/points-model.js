@@ -37,7 +37,7 @@ export default class PointsModel {
     return this.#points.map((point) => {
       const destination = this.#destinations.find((dest) => dest.id === point.destination);
       const offersForType = this.#offers.find((offer) => offer.type === point.type)?.offers || [];
-      const pointOffers = offersForType.filter((offer) => point.offerIds.includes(offer.id));
+      const pointOffers = offersForType.filter((offer) => point.offers.includes(offer.id));
 
       return {
         ...point,
