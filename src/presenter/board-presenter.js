@@ -46,14 +46,13 @@ export default class BoardPresenter {
       if (evt.key === 'Escape') {
         evt.preventDefault();
         replaceEditorToPoint();
-        document.removeEventListener('keydown', escKeyDownHandler);
       }
     };
 
     const pointComponent = new TripPointView({
       point: point,
       offers: point.offers,
-      onEditClick: () => {
+      onEditButtonClick: () => {
         replacePointToEditor();
         document.addEventListener('keydown', escKeyDownHandler);
       }
@@ -67,7 +66,11 @@ export default class BoardPresenter {
       onEditorSubmit: () => {
         replaceEditorToPoint();
         document.removeEventListener('keydown', escKeyDownHandler);
-      }
+      },
+      onCloseButtonClick: () => {
+        replaceEditorToPoint();
+        document.removeEventListener('keydown', escKeyDownHandler);
+      },
     });
 
     function replacePointToEditor() {

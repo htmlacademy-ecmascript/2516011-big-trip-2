@@ -141,16 +141,20 @@ export default class EventEditorView extends AbstractView {
   #offers = null;
   #isEventExist = null;
   #handleEditorSubmit = null;
+  #handleCloseButtonClick = null;
 
-  constructor({point, destination, offers, isEventExist, onEditorSubmit }) {
+  constructor({point, destination, offers, isEventExist, onEditorSubmit, onCloseButtonClick }) {
     super();
     this.#point = point;
     this.#destination = destination;
     this.#offers = offers;
     this.#isEventExist = isEventExist;
     this.#handleEditorSubmit = onEditorSubmit;
+    this.#handleCloseButtonClick = onCloseButtonClick;
 
     this.element.addEventListener('submit', this.#editorSubmitHandler);
+    this.element.querySelector('.event__rollup-btn')
+      .addEventListener('click', this.#handleCloseButtonClick);
   }
 
   get template() {

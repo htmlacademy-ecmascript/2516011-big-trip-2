@@ -60,11 +60,11 @@ export default class TripPointView extends AbstractView{
   #offers = null;
   #handleEditClick = null;
 
-  constructor({point, offers, onEditClick}) {
+  constructor({point, offers, onEditButtonClick}) {
     super();
     this.#point = point;
     this.#offers = offers;
-    this.#handleEditClick = onEditClick;
+    this.#handleEditClick = onEditButtonClick;
 
     this.element.querySelector('.event__rollup-btn')
       .addEventListener('click', this.#editClickHandler);
