@@ -26,19 +26,11 @@ export default class BoardPresenter {
   }
 
   init() {
-    render(new TripInfoView(), siteHeaderElement, RenderPosition.AFTERBEGIN);
-    render(new TripFilterView(), siteFilterElement);
-
-    render(this.#listComponent, this.#container);
-    render(new SortView(), this.#listComponent.element);
-
-    //Генерируем новые точки и подвязываем данные к ним
     this.#pointsModel.init();
     this.#pointsWithDetails = this.#pointsModel.pointsWithDetails;
 
-    for (const pointWithDetails of this.#pointsWithDetails) {
-      this.#renderTripPoint(pointWithDetails);
-    }
+    this.#renderHeader();
+    this.#renderBoard();
   }
 
   #renderTripPoint(point) {
@@ -84,5 +76,19 @@ export default class BoardPresenter {
     const tripPointItem = new TripEventsItemView();
     render(tripPointItem, this.#listComponent.element);
     render(pointComponent, tripPointItem.element);
+  }
+
+  #renderHeader() {
+    render(new TripInfoView(), siteHeaderElement, RenderPosition.AFTERBEGIN);
+    render(new TripFilterView(), siteFilterElement);
+  }
+
+  #renderBoard() {
+    render(this.#listComponent, this.#container);
+    render(new SortView(), this.#listComponent.element);
+
+    for (const pointWithDetails of this.#pointsWithDetails) {
+      this.#renderTripPoint(pointWithDetails);
+    }
   }
 }
