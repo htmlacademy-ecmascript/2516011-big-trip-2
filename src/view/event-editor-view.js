@@ -140,16 +140,25 @@ export default class EventEditorView extends AbstractView {
   #destination = null;
   #offers = null;
   #isEventExist = null;
+  #handleEditorSubmit = null;
 
-  constructor(point, destination, offers, { isEventExist }) {
+  constructor({point, destination, offers, isEventExist, onEditorSubmit }) {
     super();
     this.#point = point;
     this.#destination = destination;
     this.#offers = offers;
     this.#isEventExist = isEventExist;
+    this.#handleEditorSubmit = onEditorSubmit;
+
+    this.element.addEventListener('submit', this.#editorSubmitHandler);
   }
 
   get template() {
     return createEventEditorTemplate(this.#point, this.#destination, this.#offers, this.#isEventExist);
   }
+
+  #editorSubmitHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleEditorSubmit();
+  };
 }
