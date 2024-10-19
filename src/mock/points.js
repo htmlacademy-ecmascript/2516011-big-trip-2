@@ -1,4 +1,4 @@
-import { getRandomElement } from '../utils/utils.js';
+import { getRandomElement } from '../utils/common.js';
 
 const mockPoints = [
   {

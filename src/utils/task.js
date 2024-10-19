@@ -1,11 +1,6 @@
 import dayjs from 'dayjs';
 const DATE_FORMAT = 'D MMMM';
 
-const getRandomElement = (array) => {
-  const randomIndex = Math.floor(Math.random() * array.length);
-  return array[randomIndex];
-};
-
 const humanizeTaskDueDate = (dueDate) => dueDate ? dayjs(dueDate).format(DATE_FORMAT) : '';
 
 const getFormattedDuration = (dateFrom, dateTo) => {
@@ -19,4 +14,4 @@ const getFormattedDuration = (dateFrom, dateTo) => {
   return `${hours}H ${minutes}M`;
 };
 
-export { getRandomElement, humanizeTaskDueDate, getFormattedDuration };
+export { humanizeTaskDueDate, getFormattedDuration };
