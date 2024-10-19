@@ -5,7 +5,7 @@ import TripEventsItemView from '../view/trip-events-item-view.js';
 import SortView from '../view/trip-sort-view.js';
 import EventEditorView from '../view/event-editor-view.js';
 import TripPointView from '../view/trip-point-view.js';
-//import MessageView from '../view/message-view.js';
+import MessageView from '../view/message-view.js';
 
 import { render, replace, RenderPosition } from '../framework/render.js';
 
@@ -84,6 +84,11 @@ export default class BoardPresenter {
   }
 
   #renderBoard() {
+    if (this.#pointsWithDetails.every((task) => task.isArchive)) {
+      render(new MessageView('Click New Event to create your first point'), this.#container);
+      return;
+    }
+
     render(this.#listComponent, this.#container);
     render(new SortView(), this.#listComponent.element);
 

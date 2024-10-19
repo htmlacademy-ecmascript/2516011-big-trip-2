@@ -2,7 +2,7 @@ import { mockDestinations} from '../mock/destinations.js';
 import { mockOffers } from '../mock/offers.js';
 import { getRandomPoints } from '../mock/points.js';
 
-const POINTS_COUNT = 5;
+const POINTS_COUNT = 0;
 
 export default class PointsModel {
   #points = null;
