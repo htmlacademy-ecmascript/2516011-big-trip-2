@@ -7,6 +7,7 @@ import EventEditorView from '../view/event-editor-view.js';
 import TripPointView from '../view/trip-point-view.js';
 import MessageView from '../view/message-view.js';
 
+import { generateFilter } from '../mock/filter.js';
 import { render, replace, RenderPosition } from '../framework/render.js';
 
 const siteMainElement = document.querySelector('.page-header');
@@ -79,8 +80,9 @@ export default class BoardPresenter {
   }
 
   #renderHeader() {
+    const filters = generateFilter(this.#pointsModel.tasks);
     render(new TripInfoView(), siteHeaderElement, RenderPosition.AFTERBEGIN);
-    render(new TripFilterView(), siteFilterElement);
+    render(new TripFilterView({filters}), siteFilterElement);
   }
 
   #renderBoard() {
