@@ -29,7 +29,6 @@ export default class BoardPresenter {
   init() {
     this.#pointsModel.init();
     this.#pointsWithDetails = this.#pointsModel.pointsWithDetails;
-    window.console.log(this.#pointsModel);
 
     this.#renderHeader();
     this.#renderBoard();
