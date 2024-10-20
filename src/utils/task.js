@@ -15,9 +15,9 @@ const getFormattedDuration = (dateFrom, dateTo) => {
   return `${hours}H ${minutes}M`;
 };
 
-const isEventFuture = (startDate) => dayjs(startDate).isAfter(dayjs(), 'D');
-const isEventPresent = (startDate, endDate) =>
-  dayjs(startDate).isSameOrBefore(dayjs(), 'D') && dayjs(endDate).isSameOrAfter(dayjs(), 'D');
-const isEventPast = (endDate) => dayjs(endDate).isBefore(dayjs(), 'D');
+const isPointInFuture = (point) => dayjs(point.dateFrom).isAfter(dayjs());
+const isPointInPresent = (point) =>
+  dayjs(point.dateFrom).isBefore(dayjs()) && dayjs(point.dateTo).isAfter(dayjs());
+const isPointInPast = (point) => dayjs(point.dateTo).isBefore(dayjs());
 
-export { humanizeTaskDueDate, getFormattedDuration, isEventFuture, isEventPresent, isEventPast };
+export { humanizeTaskDueDate, getFormattedDuration, isPointInFuture, isPointInPresent, isPointInPast };

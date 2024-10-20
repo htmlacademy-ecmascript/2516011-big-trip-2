@@ -1,10 +1,10 @@
 const POINT_TYPES = ['taxi', 'bus', 'train', 'ship', 'drive', 'flight', 'check-in', 'sightseeing', 'restaurant'];
 
 const FilterType = {
-  EVERYTHING: 'Everything',
-  FUTURE: 'Future',
-  PRESENT: 'Present',
-  PAST: 'Past',
+  EVERYTHING: 'everything',
+  FUTURE: 'future',
+  PRESENT: 'present',
+  PAST: 'past',
 };
 
 export { POINT_TYPES, FilterType};

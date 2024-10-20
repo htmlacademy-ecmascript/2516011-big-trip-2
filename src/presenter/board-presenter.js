@@ -18,7 +18,7 @@ export default class BoardPresenter {
   #container = null;
   #pointsModel = null;
 
-  #pointsWithDetails = [];
+  #pointsWithDetails = null;
   #listComponent = new TripEventsListView();
 
   constructor({ container, pointsModel }) {
@@ -29,6 +29,7 @@ export default class BoardPresenter {
   init() {
     this.#pointsModel.init();
     this.#pointsWithDetails = this.#pointsModel.pointsWithDetails;
+    window.console.log(this.#pointsModel);
 
     this.#renderHeader();
     this.#renderBoard();
@@ -80,7 +81,7 @@ export default class BoardPresenter {
   }
 
   #renderHeader() {
-    const filters = generateFilter(this.#pointsModel.tasks);
+    const filters = generateFilter(this.#pointsWithDetails);
     render(new TripInfoView(), siteHeaderElement, RenderPosition.AFTERBEGIN);
     render(new TripFilterView({filters}), siteFilterElement);
   }
