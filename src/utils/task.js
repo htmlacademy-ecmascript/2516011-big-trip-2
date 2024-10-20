@@ -1,7 +1,8 @@
 import dayjs from 'dayjs';
 const DATE_FORMAT = 'D MMMM';
 
-const humanizeTaskDueDate = (dueDate) => dueDate ? dayjs(dueDate).format(DATE_FORMAT) : '';
+const humanizeTaskDueDate = (dueDate) => dueDate ?
+  dayjs(dueDate).format(DATE_FORMAT) : '';
 
 const getFormattedDuration = (dateFrom, dateTo) => {
   const startDate = dayjs(dateFrom);
@@ -14,4 +15,9 @@ const getFormattedDuration = (dateFrom, dateTo) => {
   return `${hours}H ${minutes}M`;
 };
 
-export { humanizeTaskDueDate, getFormattedDuration };
+const isEventFuture = (startDate) => dayjs(startDate).isAfter(dayjs(), 'D');
+const isEventPresent = (startDate, endDate) =>
+  dayjs(startDate).isSameOrBefore(dayjs(), 'D') && dayjs(endDate).isSameOrAfter(dayjs(), 'D');
+const isEventPast = (endDate) => dayjs(endDate).isBefore(dayjs(), 'D');
+
+export { humanizeTaskDueDate, getFormattedDuration, isEventFuture, isEventPresent, isEventPast };
