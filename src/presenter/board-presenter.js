@@ -5,8 +5,9 @@ import TripEventsItemView from '../view/trip-events-item-view.js';
 import SortView from '../view/trip-sort-view.js';
 import EventEditorView from '../view/event-editor-view.js';
 import TripPointView from '../view/trip-point-view.js';
-//import MessageView from '../view/message-view.js';
+import MessageView from '../view/message-view.js';
 
+import { generateFilter } from '../mock/filter.js';
 import { render, replace, RenderPosition } from '../framework/render.js';
 
 const siteMainElement = document.querySelector('.page-header');
@@ -17,7 +18,7 @@ export default class BoardPresenter {
   #container = null;
   #pointsModel = null;
 
-  #pointsWithDetails = [];
+  #pointsWithDetails = null;
   #listComponent = new TripEventsListView();
 
   constructor({ container, pointsModel }) {
@@ -79,11 +80,17 @@ export default class BoardPresenter {
   }
 
   #renderHeader() {
+    const filters = generateFilter(this.#pointsWithDetails);
     render(new TripInfoView(), siteHeaderElement, RenderPosition.AFTERBEGIN);
-    render(new TripFilterView(), siteFilterElement);
+    render(new TripFilterView({filters}), siteFilterElement);
   }
 
   #renderBoard() {
+    if (this.#pointsWithDetails.every((task) => task.isArchive)) {
+      render(new MessageView('Click New Event to create your first point'), this.#container);
+      return;
+    }
+
     render(this.#listComponent, this.#container);
     render(new SortView(), this.#listComponent.element);
 
