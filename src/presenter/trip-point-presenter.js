@@ -1,20 +1,20 @@
 import { render, replace } from '../framework/render.js';
+
 import TripPointView from '../view/trip-point-view.js';
 import EventEditorView from '../view/event-editor-view.js';
 import TripEventsItemView from '../view/trip-events-item-view.js';
 
 export default class TripPointPresenter {
   #point = null;
-  #listContainer = null;
-  #changeData = null;
+  #container = null;
 
   #pointComponent = null;
   #editorComponent = null;
   #tripPointItem = new TripEventsItemView();
 
-  constructor({ point, listContainer }) {
+  constructor({ point, container }) {
     this.#point = point;
-    this.#listContainer = listContainer;
+    this.#container = container;
   }
 
   init() {
@@ -42,7 +42,7 @@ export default class TripPointPresenter {
       },
     });
 
-    render(this.#tripPointItem, this.#listContainer);
+    render(this.#tripPointItem, this.#container.element);
     render(this.#pointComponent, this.#tripPointItem.element);
   }
 

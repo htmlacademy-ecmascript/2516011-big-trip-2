@@ -29,32 +29,44 @@ export default class BoardPresenter {
     this.#pointsModel.init();
     this.#pointsWithDetails = this.#pointsModel.pointsWithDetails;
 
-    this.#renderHeader();
     this.#renderBoard();
+  }
+
+  #renderHeader() {
+    render(new TripInfoView(), siteHeaderElement, RenderPosition.AFTERBEGIN);
+  }
+
+  #renderFilter() {
+    const filters = generateFilter(this.#pointsWithDetails);
+    render(new TripFilterView({filters}), siteFilterElement);
+  }
+
+  #renderSort() {
+    render(this.#listComponent, this.#container);
+    render(new SortView(), this.#listComponent.element);
   }
 
   #renderTripPoint(point) {
     const tripPointItem = new TripPointPresenter({
       point,
-      listContainer: this.#listComponent.element
+      container: this.#listComponent
     });
     tripPointItem.init();
   }
 
-  #renderHeader() {
-    const filters = generateFilter(this.#pointsWithDetails);
-    render(new TripInfoView(), siteHeaderElement, RenderPosition.AFTERBEGIN);
-    render(new TripFilterView({filters}), siteFilterElement);
+  #renderNoPoints() {
+    render(new MessageView('Click New Event to create your first point'), this.#container);
   }
 
   #renderBoard() {
     if (this.#pointsWithDetails.length === 0) {
-      render(new MessageView('Click New Event to create your first point'), this.#container);
+      this.#renderNoPoints();
       return;
     }
 
-    render(this.#listComponent, this.#container);
-    render(new SortView(), this.#listComponent.element);
+    this.#renderHeader();
+    this.#renderFilter();
+    this.#renderSort();
 
     for (const pointWithDetails of this.#pointsWithDetails) {
       this.#renderTripPoint(pointWithDetails);
