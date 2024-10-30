@@ -1,5 +1,6 @@
 import { generateFilter } from '../mock/filter.js';
 import { render, RenderPosition } from '../framework/render.js';
+import { updateItem } from '../utils/common.js';
 
 import TripInfoView from '../view/trip-info-view.js';
 import TripFilterView from '../view/trip-filter-view.js';
@@ -19,6 +20,7 @@ export default class BoardPresenter {
 
   #pointsWithDetails = null;
   #listComponent = new TripEventsListView();
+  #tripPointPresenter = new Map();
 
   constructor({ container, pointsModel }) {
     this.#container = container;
@@ -31,6 +33,11 @@ export default class BoardPresenter {
 
     this.#renderBoard();
   }
+
+  #handleTripPointChange = (updatedTripPoint) => {
+    this.#boardTasks = updateItem(this.#boardTasks, updatedTripPoint);
+    this.#tripPointPresenter.get(updatedTripPoint.id).init(updatedTripPoint);
+  };
 
   #renderHeader() {
     render(new TripInfoView(), siteHeaderElement, RenderPosition.AFTERBEGIN);
@@ -47,10 +54,10 @@ export default class BoardPresenter {
 
   #renderTripPoint(point) {
     render(this.#listComponent, this.#container);
-    const tripPointItem = new TripPointPresenter({
+    const tripPointPresenter = new TripPointPresenter({
       container: this.#listComponent
     });
-    tripPointItem.init(point);
+    tripPointPresenter.init(point);
   }
 
   #renderNoPoints() {
