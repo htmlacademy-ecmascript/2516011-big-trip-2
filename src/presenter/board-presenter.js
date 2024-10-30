@@ -55,9 +55,11 @@ export default class BoardPresenter {
   #renderTripPoint(point) {
     render(this.#listComponent, this.#container);
     const tripPointPresenter = new TripPointPresenter({
-      container: this.#listComponent
+      container: this.#listComponent,
+      onDataChange: this.#handleTripPointChange
     });
     tripPointPresenter.init(point);
+    this.#tripPointPresenter.set(point.id, tripPointPresenter);
   }
 
   #renderNoPoints() {

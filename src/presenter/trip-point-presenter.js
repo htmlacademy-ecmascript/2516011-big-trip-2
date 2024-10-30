@@ -7,13 +7,15 @@ import TripEventsItemView from '../view/trip-events-item-view.js';
 export default class TripPointPresenter {
   #point = null;
   #container = null;
+  #handleDataChange = null;
 
   #pointComponent = null;
   #editorComponent = null;
   #tripPointItem = new TripEventsItemView();
 
-  constructor({ container }) {
+  constructor({ container, onDataChange }) {
     this.#container = container;
+    this.#handleDataChange = onDataChange;
   }
 
   init(point) {
@@ -37,14 +39,8 @@ export default class TripPointPresenter {
       destination: this.#point.destination,
       offers: this.#point.offers,
       isEventExist: true,
-      onEditorSubmit: () => {
-        this.#replaceEditorToPoint();
-        document.removeEventListener('keydown', this.#escKeyDownHandler);
-      },
-      onCloseButtonClick: () => {
-        this.#replaceEditorToPoint();
-        document.removeEventListener('keydown', this.#escKeyDownHandler);
-      },
+      onEditorSubmit: this.#handlerEditorSubmit,
+      onCloseButtonClick: this.#handlerCloseButtonClick,
     });
 
     if (prevPointComponent === null || prevEditorComponent === null) {
@@ -86,24 +82,17 @@ export default class TripPointPresenter {
   };
 
   #handleFavoriteClick = () => {
-    this.#point.isFavorite = !this.#point.isFavorite;
-    this.#updatePoint();
+    this.#handleDataChange({...this.#point, isFavorite: !this.#point.isFavorite});
   };
 
-  #updatePoint() {
-    const oldPointComponent = this.#pointComponent;
+  #handlerEditorSubmit = (point) => {
+    this.#handleDataChange(point);
+    this.#replaceEditorToPoint();
+    document.removeEventListener('keydown', this.#escKeyDownHandler);
+  };
 
-    this.#pointComponent = new TripPointView({
-      point: this.#point,
-      offers: this.#point.offers,
-      onEditButtonClick: () => {
-        this.#replacePointToEditor();
-        document.addEventListener('keydown', this.#escKeyDownHandler);
-      },
-      onFavoriteClick: this.#handleFavoriteClick
-    });
-
-    replace(this.#pointComponent, oldPointComponent);
-    remove(oldPointComponent);
-  }
+  #handlerCloseButtonClick = () => {
+    this.#replaceEditorToPoint();
+    document.removeEventListener('keydown', this.#escKeyDownHandler);
+  };
 }
