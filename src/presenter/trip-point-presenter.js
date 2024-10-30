@@ -24,7 +24,8 @@ export default class TripPointPresenter {
       onEditButtonClick: () => {
         this.#replacePointToEditor();
         document.addEventListener('keydown', this.#escKeyDownHandler);
-      }
+      },
+      onFavoriteClick: this.#handleFavoriteClick
     });
 
     this.#editorComponent = new EventEditorView({
@@ -60,4 +61,28 @@ export default class TripPointPresenter {
       this.#replaceEditorToPoint();
     }
   };
+
+  // Метод для обновления данных точки маршрута и перерисовки компонента
+  #handleFavoriteClick = () => {
+    this.#point.isFavorite = !this.#point.isFavorite; // Изменение состояния избранного
+    this.#updatePoint(); // Обновление данных и перерисовка
+  };
+
+  #updatePoint() {
+    const oldPointComponent = this.#pointComponent;
+
+    // Создаем новый компонент с обновленными данными
+    this.#pointComponent = new TripPointView({
+      point: this.#point,
+      offers: this.#point.offers,
+      onEditButtonClick: () => {
+        this.#replacePointToEditor();
+        document.addEventListener('keydown', this.#escKeyDownHandler);
+      },
+      onFavoriteClick: this.#handleFavoriteClick
+    });
+
+    // Заменяем старый компонент новым
+    replace(this.#pointComponent, oldPointComponent);
+  }
 }
