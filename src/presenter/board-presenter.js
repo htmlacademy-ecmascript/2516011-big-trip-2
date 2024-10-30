@@ -86,7 +86,7 @@ export default class BoardPresenter {
   }
 
   #renderBoard() {
-    if (this.#pointsWithDetails.every((task) => task.isArchive)) {
+    if (this.#pointsWithDetails.length === 0) {
       render(new MessageView('Click New Event to create your first point'), this.#container);
       return;
     }
