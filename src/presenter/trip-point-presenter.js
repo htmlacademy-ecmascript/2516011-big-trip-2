@@ -4,18 +4,27 @@ import TripPointView from '../view/trip-point-view.js';
 import EventEditorView from '../view/event-editor-view.js';
 import TripEventsItemView from '../view/trip-events-item-view.js';
 
+const Mode = {
+  DEFAULT: 'DEFAULT',
+  EDITING: 'EDITING',
+};
+
 export default class TripPointPresenter {
   #point = null;
   #container = null;
   #handleDataChange = null;
+  #handleModeChange = null;
 
   #pointComponent = null;
   #editorComponent = null;
   #tripPointItem = new TripEventsItemView();
 
-  constructor({ container, onDataChange }) {
+  #mode = Mode.DEFAULT;
+
+  constructor({ container, onDataChange, onModeChange }) {
     this.#container = container;
     this.#handleDataChange = onDataChange;
+    this.#handleModeChange = onModeChange;
   }
 
   init(point) {
@@ -49,10 +58,10 @@ export default class TripPointPresenter {
       return;
     }
 
-    if (this.#container.element.contains(prevPointComponent.element)) {
+    if (this.#mode === Mode.DEFAULT) {
       replace(this.#pointComponent, prevPointComponent);
     }
-    if (this.#container.element.contains(prevEditorComponent.element)) {
+    if (this.#mode === Mode.EDITING) {
       replace(this.#editorComponent, prevEditorComponent);
     }
 
@@ -66,12 +75,21 @@ export default class TripPointPresenter {
     remove(this.#tripPointItem);
   }
 
+  resetView() {
+    if (this.#mode !== Mode.DEFAULT) {
+      this.#replaceEditorToPoint();
+    }
+  }
+
   #replacePointToEditor = () => {
     replace(this.#editorComponent, this.#pointComponent);
+    this.#handleModeChange();
+    this.#mode = Mode.EDITING;
   };
 
   #replaceEditorToPoint = () => {
     replace(this.#pointComponent, this.#editorComponent);
+    this.#mode = Mode.DEFAULT;
   };
 
   #escKeyDownHandler = (evt) => {

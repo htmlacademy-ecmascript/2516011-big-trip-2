@@ -20,7 +20,7 @@ export default class BoardPresenter {
 
   #pointsWithDetails = null;
   #listComponent = new TripEventsListView();
-  #tripPointPresenter = new Map();
+  #tripPointPresenters = new Map();
 
   constructor({ container, pointsModel }) {
     this.#container = container;
@@ -36,7 +36,11 @@ export default class BoardPresenter {
 
   #handleTripPointChange = (updatedTripPoint) => {
     this.#pointsWithDetails = updateItem(this.#pointsWithDetails, updatedTripPoint);
-    this.#tripPointPresenter.get(updatedTripPoint.id).init(updatedTripPoint);
+    this.#tripPointPresenters.get(updatedTripPoint.id).init(updatedTripPoint);
+  };
+
+  #handleModeChange = () => {
+    this.#tripPointPresenters.forEach((presenter) => presenter.resetView());
   };
 
   #renderHeader() {
@@ -56,10 +60,11 @@ export default class BoardPresenter {
     render(this.#listComponent, this.#container);
     const tripPointPresenter = new TripPointPresenter({
       container: this.#listComponent,
-      onDataChange: this.#handleTripPointChange
+      onDataChange: this.#handleTripPointChange,
+      onModeChange: this.#handleModeChange
     });
     tripPointPresenter.init(point);
-    this.#tripPointPresenter.set(point.id, tripPointPresenter);
+    this.#tripPointPresenters.set(point.id, tripPointPresenter);
   }
 
   #renderNoPoints() {
