@@ -42,11 +42,11 @@ export default class BoardPresenter {
   }
 
   #renderSort() {
-    render(this.#listComponent, this.#container);
-    render(new SortView(), this.#listComponent.element);
+    render(new SortView(), this.#container);
   }
 
   #renderTripPoint(point) {
+    render(this.#listComponent, this.#container);
     const tripPointItem = new TripPointPresenter({
       point,
       container: this.#listComponent
