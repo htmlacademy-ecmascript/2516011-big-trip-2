@@ -35,7 +35,7 @@ export default class BoardPresenter {
   }
 
   #handleTripPointChange = (updatedTripPoint) => {
-    this.#boardTasks = updateItem(this.#boardTasks, updatedTripPoint);
+    this.#pointsWithDetails = updateItem(this.#pointsWithDetails, updatedTripPoint);
     this.#tripPointPresenter.get(updatedTripPoint.id).init(updatedTripPoint);
   };
 
