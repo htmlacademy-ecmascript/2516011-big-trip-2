@@ -1,4 +1,4 @@
-import { render, replace } from '../framework/render.js';
+import { render, replace, remove } from '../framework/render.js';
 
 import TripPointView from '../view/trip-point-view.js';
 import EventEditorView from '../view/event-editor-view.js';
@@ -12,12 +12,16 @@ export default class TripPointPresenter {
   #editorComponent = null;
   #tripPointItem = new TripEventsItemView();
 
-  constructor({ point, container }) {
-    this.#point = point;
+  constructor({ container }) {
     this.#container = container;
   }
 
-  init() {
+  init(point) {
+    this.#point = point;
+
+    const prevPointComponent = this.#pointComponent;
+    const prevEditorComponent = this.#editorComponent;
+
     this.#pointComponent = new TripPointView({
       point: this.#point,
       offers: this.#point.offers,
@@ -43,8 +47,27 @@ export default class TripPointPresenter {
       },
     });
 
-    render(this.#tripPointItem, this.#container.element);
-    render(this.#pointComponent, this.#tripPointItem.element);
+    if (prevPointComponent === null || prevEditorComponent === null) {
+      render(this.#tripPointItem, this.#container.element);
+      render(this.#pointComponent, this.#tripPointItem.element);
+      return;
+    }
+
+    if (this.#container.element.contains(prevPointComponent.element)) {
+      replace(this.#pointComponent, prevPointComponent);
+    }
+    if (this.#container.element.contains(prevEditorComponent.element)) {
+      replace(this.#editorComponent, prevEditorComponent);
+    }
+
+    remove(prevPointComponent);
+    remove(prevEditorComponent);
+  }
+
+  destroy() {
+    remove(this.#pointComponent);
+    remove(this.#editorComponent);
+    remove(this.#tripPointItem);
   }
 
   #replacePointToEditor = () => {
@@ -62,16 +85,14 @@ export default class TripPointPresenter {
     }
   };
 
-  // Метод для обновления данных точки маршрута и перерисовки компонента
   #handleFavoriteClick = () => {
-    this.#point.isFavorite = !this.#point.isFavorite; // Изменение состояния избранного
-    this.#updatePoint(); // Обновление данных и перерисовка
+    this.#point.isFavorite = !this.#point.isFavorite;
+    this.#updatePoint();
   };
 
   #updatePoint() {
     const oldPointComponent = this.#pointComponent;
 
-    // Создаем новый компонент с обновленными данными
     this.#pointComponent = new TripPointView({
       point: this.#point,
       offers: this.#point.offers,
@@ -82,7 +103,7 @@ export default class TripPointPresenter {
       onFavoriteClick: this.#handleFavoriteClick
     });
 
-    // Заменяем старый компонент новым
     replace(this.#pointComponent, oldPointComponent);
+    remove(oldPointComponent);
   }
 }
