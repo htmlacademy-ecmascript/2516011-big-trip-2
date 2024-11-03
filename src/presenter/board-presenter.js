@@ -1,6 +1,8 @@
 import { generateFilter } from '../mock/filter.js';
 import { render, RenderPosition } from '../framework/render.js';
 import { updateItem } from '../utils/common.js';
+import { SortType } from '../const.js';
+import { sortPointByDay, sortPointByTime, sortPointByPrice } from '../utils/task.js';
 
 import TripInfoView from '../view/trip-info-view.js';
 import TripFilterView from '../view/trip-filter-view.js';
@@ -19,6 +21,8 @@ export default class BoardPresenter {
   #pointsModel = null;
 
   #sortComponent = null;
+  #currentSortType = SortType.DAY;
+  #sourcedBoardPoints = [];
   #pointsWithDetails = null;
   #listComponent = new TripEventsListView();
   #tripPointPresenters = new Map();
@@ -31,20 +35,10 @@ export default class BoardPresenter {
   init() {
     this.#pointsModel.init();
     this.#pointsWithDetails = this.#pointsModel.pointsWithDetails;
+    this.#sourcedBoardPoints = this.#pointsModel.pointsWithDetails;
 
     this.#renderBoard();
   }
-
-  #handleTripPointChange = (updatedTripPoint) => {
-    this.#pointsWithDetails = updateItem(this.#pointsWithDetails, updatedTripPoint);
-    this.#tripPointPresenters.get(updatedTripPoint.id).init(updatedTripPoint);
-  };
-
-  #handleModeChange = () => {
-    this.#tripPointPresenters.forEach((presenter) => presenter.resetView());
-  };
-
-  #handleSortTypeChange = (sortType) => {};
 
   #renderHeader() {
     render(new TripInfoView(), siteHeaderElement, RenderPosition.AFTERBEGIN);
@@ -60,6 +54,34 @@ export default class BoardPresenter {
       onSortTypeChange: this.#handleSortTypeChange
     });
     render(this.#sortComponent, this.#container);
+  }
+
+  #sortPoints(sortType) {
+    switch (sortType) {
+      case SortType.DAY:
+        this.#pointsWithDetails.sort(sortPointByDay);
+        break;
+      case SortType.TIME:
+        this.#pointsWithDetails.sort(sortPointByTime);
+        break;
+      case SortType.PRICE:
+        this.#pointsWithDetails.sort(sortPointByPrice);
+        break;
+      default:
+        this.#pointsWithDetails = [...this.#sourcedBoardPoints];
+    }
+    this.#currentSortType = sortType;
+  }
+
+  #clearPointsList() {
+    this.#tripPointPresenters.forEach((presenter) => presenter.destroy());
+    this.#tripPointPresenters.clear();
+  }
+
+  #renderTripPointsList () {
+    for (const pointWithDetails of this.#pointsWithDetails) {
+      this.#renderTripPoint(pointWithDetails);
+    }
   }
 
   #renderTripPoint(point) {
@@ -86,9 +108,26 @@ export default class BoardPresenter {
     this.#renderHeader();
     this.#renderFilter();
     this.#renderSort();
-
-    for (const pointWithDetails of this.#pointsWithDetails) {
-      this.#renderTripPoint(pointWithDetails);
-    }
+    this.#renderTripPointsList();
   }
+
+  #handleTripPointChange = (updatedTripPoint) => {
+    this.#pointsWithDetails = updateItem(this.#pointsWithDetails, updatedTripPoint);
+    this.#sourcedBoardPoints = updateItem(this.#sourcedBoardPoints, updatedTripPoint);
+    this.#tripPointPresenters.get(updatedTripPoint.id).init(updatedTripPoint);
+  };
+
+  #handleModeChange = () => {
+    this.#tripPointPresenters.forEach((presenter) => presenter.resetView());
+  };
+
+  #handleSortTypeChange = (sortType) => {
+    if (this.#currentSortType === sortType) {
+      return;
+    }
+
+    this.#sortPoints(sortType);
+    this.#clearPointsList();
+    this.#renderTripPointsList();
+  };
 }

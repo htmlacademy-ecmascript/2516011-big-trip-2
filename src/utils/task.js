@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 const DATE_FORMAT = 'D MMMM';
 
-const humanizeTaskDueDate = (dueDate) => dueDate ?
+const humanizePointDueDate = (dueDate) => dueDate ?
   dayjs(dueDate).format(DATE_FORMAT) : '';
 
 const getFormattedDuration = (dateFrom, dateTo) => {
@@ -20,4 +20,8 @@ const isPointInPresent = (point) =>
   dayjs(point.dateFrom).isBefore(dayjs()) && dayjs(point.dateTo).isAfter(dayjs());
 const isPointInPast = (point) => dayjs(point.dateTo).isBefore(dayjs());
 
-export { humanizeTaskDueDate, getFormattedDuration, isPointInFuture, isPointInPresent, isPointInPast };
+const sortPointByDay = (a, b) => new Date(a.dateFrom) - new Date(b.dateFrom);
+const sortPointByTime = (a, b) => (new Date(b.dateTo) - new Date(b.dateFrom)) - (new Date(a.dateTo) - new Date(a.dateFrom));
+const sortPointByPrice = (a, b) => b.basePrice - a.basePrice;
+
+export { humanizePointDueDate, getFormattedDuration, isPointInFuture, isPointInPresent, isPointInPast, sortPointByDay, sortPointByTime, sortPointByPrice };
