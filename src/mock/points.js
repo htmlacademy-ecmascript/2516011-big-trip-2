@@ -47,4 +47,4 @@ function getRandomPoints() {
   return getRandomElement(mockPoints);
 }
 
-export { getRandomPoints };
+export { getRandomPoints, mockPoints };
