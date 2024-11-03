@@ -18,6 +18,7 @@ export default class BoardPresenter {
   #container = null;
   #pointsModel = null;
 
+  #sortComponent = null;
   #pointsWithDetails = null;
   #listComponent = new TripEventsListView();
   #tripPointPresenters = new Map();
@@ -43,6 +44,8 @@ export default class BoardPresenter {
     this.#tripPointPresenters.forEach((presenter) => presenter.resetView());
   };
 
+  #handleSortTypeChange = (sortType) => {};
+
   #renderHeader() {
     render(new TripInfoView(), siteHeaderElement, RenderPosition.AFTERBEGIN);
   }
@@ -53,7 +56,10 @@ export default class BoardPresenter {
   }
 
   #renderSort() {
-    render(new SortView(), this.#container);
+    this.#sortComponent = new SortView({
+      onSortTypeChange: this.#handleSortTypeChange
+    });
+    render(this.#sortComponent, this.#container);
   }
 
   #renderTripPoint(point) {
