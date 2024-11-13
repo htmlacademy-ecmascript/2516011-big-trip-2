@@ -1,7 +1,7 @@
-import AbstractView from '../framework/view/abstract-view';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view';
 import { POINT_TYPES } from '../const.js';
 
-function createEventEditorTemplate(point = {}, destination, offers, isEventExist = false) {
+function createEventEditorTemplate(point, destination, offers, isEventExist) {
   const {
     type = 'flight',
     basePrice = 0,
@@ -134,34 +134,43 @@ function createEventEditorTemplate(point = {}, destination, offers, isEventExist
           </form>`);
 }
 
-export default class EventEditorView extends AbstractView {
-  #point = null;
-  #destination = null;
-  #offers = null;
-  #isEventExist = null;
+export default class EventEditorView extends AbstractStatefulView {
   #handleEditorSubmit = null;
   #handleCloseButtonClick = null;
 
   constructor({point, destination, offers, isEventExist, onEditorSubmit, onCloseButtonClick }) {
     super();
-    this.#point = point;
-    this.#destination = destination;
-    this.#offers = offers;
-    this.#isEventExist = isEventExist;
+    this._setState(EventEditorView.parsePointToState(point, destination, offers, isEventExist));
     this.#handleEditorSubmit = onEditorSubmit;
     this.#handleCloseButtonClick = onCloseButtonClick;
 
     this.element.addEventListener('submit', this.#editorSubmitHandler);
-    this.element.querySelector('.event__rollup-btn')
-      .addEventListener('click', this.#handleCloseButtonClick);
+    if (isEventExist) {
+      this.element.querySelector('.event__rollup-btn')
+        .addEventListener('click', this.#handleCloseButtonClick);
+    }
   }
 
   get template() {
-    return createEventEditorTemplate(this.#point, this.#destination, this.#offers, this.#isEventExist);
+    return createEventEditorTemplate(this._state, this._state.destination, this._state.offers, this._state.isEventExist);
   }
 
   #editorSubmitHandler = (evt) => {
     evt.preventDefault();
-    this.#handleEditorSubmit(this.#point);
+    this.#handleEditorSubmit(EventEditorView.parseStateToPoint(this._state));
   };
+
+  static parsePointToState(point, destination, offers, isEventExist) {
+    return {
+      ...point,
+      destination,
+      offers,
+      isEventExist,
+    };
+  }
+
+  static parseStateToPoint(state) {
+    const { ...pointData } = state;
+    return pointData;
+  }
 }
