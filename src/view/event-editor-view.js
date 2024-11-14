@@ -1,5 +1,6 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view';
 import { POINT_TYPES } from '../const.js';
+import { getOffersByType, getDestinationDetails } from '../utils/data-fetch.js';
 
 function createEventTypeTemplate(pointId, type) {
   return POINT_TYPES.map((eventType) => `
@@ -230,26 +231,55 @@ export default class EventEditorView extends AbstractStatefulView {
       .addEventListener('click', this.#handleCloseButtonClick);
   }
 
+  #updateOffersByType(type) {
+    const updatedOffers = getOffersByType(type);
+    this.updateElement({ offers: updatedOffers });
+  }
+
+  #eventTypeChangeHandler = (evt) => {
+    this.updateElement({
+      type: evt.target.value,
+    });
+    this.#updateOffersByType(evt.target.value);
+  };
+
+  #updateDestinationDetails(destinationName) {
+    const destination = getDestinationDetails(destinationName);
+    this._setState({
+      destination: {
+        ...destination,
+        name: destinationName,
+      },
+    });
+  }
+
+  #destinationChangeHandler = (evt) => {
+    evt.preventDefault();
+    this.#updateDestinationDetails(evt.target.value);
+  };
+
+  #updateTotalPrice() {
+    const selectedOffers = this._state.offers.filter((offer) => offer.isChecked);
+    const offersTotal = selectedOffers.reduce((sum, offer) => sum + offer.price, 0);
+    const totalPrice = this._state.basePrice + offersTotal;
+    this._setState({ basePrice: totalPrice });
+  }
+
+  #offerChangeHandler = (evt) => {
+    const updatedOffers = this._state.offers.map((offer) => {
+      if (offer.id === evt.target.id.split('-')[2]) {
+        return { ...offer, isChecked: evt.target.checked };
+      }
+      return offer;
+    });
+    this._setState({ offers: updatedOffers });
+    this.#updateTotalPrice();
+  };
+
 
   #editorSubmitHandler = (evt) => {
     evt.preventDefault();
     this.#handleEditorSubmit(EventEditorView.parseStateToPoint(this._state));
-  };
-
-  #eventTypeChangeHandler = (evt) => {
-    this.updateElement({
-      type: evt.target.value
-    });
-  };
-
-  #destinationChangeHandler = (evt) => {
-    evt.preventDefault();
-    this._setState({
-      destination: {
-        ...this._state.destination,
-        name: evt.target.value
-      }
-    });
   };
 
   #dateFromChangeHandler = (evt) => {
@@ -270,18 +300,6 @@ export default class EventEditorView extends AbstractStatefulView {
     evt.preventDefault();
     this._setState({
       basePrice: evt.target.value
-    });
-  };
-
-  #offerChangeHandler = (evt) => {
-    const updatedOffers = this._state.offers.map((offer) => {
-      if (offer.id === evt.target.id.split('-')[2]) {
-        return { ...offer, isChecked: evt.target.checked };
-      }
-      return offer;
-    });
-    this._setState({
-      offers: updatedOffers
     });
   };
 
