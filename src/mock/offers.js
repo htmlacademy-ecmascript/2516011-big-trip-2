@@ -45,6 +45,36 @@ export const mockOffers = [
     ]
   },
   {
+    type: 'ship',
+    offers: [
+      {
+        id: 'k1a9f8e0-8af4-11eb-8dcd-0242ac130009',
+        title: 'Ocean view room',
+        price: 300
+      },
+      {
+        id: 'l1d3e2f3-8af4-11eb-8dcd-0242ac130010',
+        title: 'Gourmet dinner',
+        price: 150
+      }
+    ]
+  },
+  {
+    type: 'drive',
+    offers: [
+      {
+        id: 'm2c4e8a2-8af4-11eb-8dcd-0242ac130011',
+        title: 'GPS navigation',
+        price: 40
+      },
+      {
+        id: 'n3f7e2b4-8af4-11eb-8dcd-0242ac130012',
+        title: 'Child seat',
+        price: 30
+      }
+    ]
+  },
+  {
     type: 'flight',
     offers: [
       {
@@ -56,6 +86,51 @@ export const mockOffers = [
         id: 'j9e8e1f9-8af4-11eb-8dcd-0242ac130008',
         title: 'Priority boarding',
         price: 80
+      }
+    ]
+  },
+  {
+    type: 'check-in',
+    offers: [
+      {
+        id: 'o4a7e5b3-8af4-11eb-8dcd-0242ac130013',
+        title: 'Early check-in',
+        price: 50
+      },
+      {
+        id: 'p4d8f6c7-8af4-11eb-8dcd-0242ac130014',
+        title: 'Late check-out',
+        price: 60
+      }
+    ]
+  },
+  {
+    type: 'sightseeing',
+    offers: [
+      {
+        id: 'q5c9f8e9-8af4-11eb-8dcd-0242ac130015',
+        title: 'Guided tour',
+        price: 40
+      },
+      {
+        id: 'r5e0f7g2-8af4-11eb-8dcd-0242ac130016',
+        title: 'Skip-the-line access',
+        price: 70
+      }
+    ]
+  },
+  {
+    type: 'restaurant',
+    offers: [
+      {
+        id: 's6a1f9g4-8af4-11eb-8dcd-0242ac130017',
+        title: 'Gourmet menu',
+        price: 90
+      },
+      {
+        id: 't6e2h0i5-8af4-11eb-8dcd-0242ac130018',
+        title: 'Table with a view',
+        price: 50
       }
     ]
   }
