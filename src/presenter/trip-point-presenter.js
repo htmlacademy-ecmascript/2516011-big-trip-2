@@ -77,6 +77,7 @@ export default class TripPointPresenter {
 
   resetView() {
     if (this.#mode !== Mode.DEFAULT) {
+      this.#editorComponent.reset(this.#point, this.#point.destination, this.#point.offers, true);
       this.#replaceEditorToPoint();
     }
   }
@@ -95,7 +96,9 @@ export default class TripPointPresenter {
   #escKeyDownHandler = (evt) => {
     if (evt.key === 'Escape') {
       evt.preventDefault();
+      this.#editorComponent.reset(this.#point, this.#point.destination, this.#point.offers, true);
       this.#replaceEditorToPoint();
+      document.removeEventListener('keydown', this.#escKeyDownHandler);
     }
   };
 
@@ -109,7 +112,9 @@ export default class TripPointPresenter {
     document.removeEventListener('keydown', this.#escKeyDownHandler);
   };
 
-  #handlerCloseButtonClick = () => {
+  #handlerCloseButtonClick = (evt) => {
+    evt.preventDefault();
+    this.#editorComponent.reset(this.#point, this.#point.destination, this.#point.offers, true);
     this.#replaceEditorToPoint();
     document.removeEventListener('keydown', this.#escKeyDownHandler);
   };
