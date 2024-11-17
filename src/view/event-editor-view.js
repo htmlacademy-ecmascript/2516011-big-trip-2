@@ -3,7 +3,7 @@ import { POINT_TYPES } from '../const.js';
 import { getOffersByType, getDestinationDetails } from '../utils/data-fetch.js';
 import flatpickr from 'flatpickr';
 
-import 'flatpickr/dist/flatpickr.min.css';
+import 'flatpickr/dist/themes/material_blue.css';
 
 function createEventTypeTemplate(pointId, type) {
   return POINT_TYPES.map((eventType) => `
