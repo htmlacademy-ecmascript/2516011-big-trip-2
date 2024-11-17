@@ -1,6 +1,9 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view';
 import { POINT_TYPES } from '../const.js';
 import { getOffersByType, getDestinationDetails } from '../utils/data-fetch.js';
+import flatpickr from 'flatpickr';
+
+import 'flatpickr/dist/flatpickr.min.css';
 
 function createEventTypeTemplate(pointId, type) {
   return POINT_TYPES.map((eventType) => `
