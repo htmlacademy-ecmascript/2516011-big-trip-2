@@ -177,6 +177,8 @@ export default class EventEditorView extends AbstractStatefulView {
   #handleEditorSubmit = null;
   #handleCloseButtonClick = null;
   #pointId = null;
+  #datepickerFrom = null;
+  #datepickerTo = null;
 
   constructor({ point, destination, offers, isEventExist, onEditorSubmit, onCloseButtonClick }) {
     super();
@@ -191,6 +193,20 @@ export default class EventEditorView extends AbstractStatefulView {
 
   get template() {
     return createEventEditorTemplate(this._state);
+  }
+
+  removeElement() {
+    super.removeElement();
+
+    if (this.#datepickerFrom) {
+      this.#datepickerFrom.destroy();
+      this.#datepickerFrom = null;
+    }
+
+    if (this.#datepickerTo) {
+      this.#datepickerTo.destroy();
+      this.#datepickerTo = null;
+    }
   }
 
   reset(point, destination, offers, isEventExist) {
@@ -211,13 +227,24 @@ export default class EventEditorView extends AbstractStatefulView {
     }
 
     const dateFromElement = this.element.querySelector(`#event-start-time-${this.#pointId}`);
+    const dateToElement = this.element.querySelector(`#event-end-time-${this.#pointId}`);
+
     if (dateFromElement) {
-      dateFromElement.addEventListener('input', this.#dateFromChangeHandler);
+      this.#datepickerFrom = flatpickr(dateFromElement, {
+        enableTime: true,
+        dateFormat: 'd/m/Y H:i',
+        defaultDate: this._state.dateFrom,
+        onChange: this.#dateFromChangeHandler,
+      });
     }
 
-    const dateToElement = this.element.querySelector(`#event-end-time-${this.#pointId}`);
     if (dateToElement) {
-      dateToElement.addEventListener('input', this.#dateToChangeHandler);
+      this.#datepickerTo = flatpickr(dateToElement, {
+        enableTime: true,
+        dateFormat: 'd/m/Y H:i',
+        defaultDate: this._state.dateTo,
+        onChange: this.#dateToChangeHandler,
+      });
     }
 
     const priceElement = this.element.querySelector(`#event-price-${this.#pointId}`);
@@ -285,17 +312,15 @@ export default class EventEditorView extends AbstractStatefulView {
     this.#handleEditorSubmit(EventEditorView.parseStateToPoint(this._state));
   };
 
-  #dateFromChangeHandler = (evt) => {
-    evt.preventDefault();
+  #dateFromChangeHandler = ([selectedDate]) => {
     this.updateElement({
-      dateFrom: evt.target.value
+      dateFrom: selectedDate.toISOString()
     });
   };
 
-  #dateToChangeHandler = (evt) => {
-    evt.preventDefault();
+  #dateToChangeHandler = ([selectedDate]) => {
     this.updateElement({
-      dateTo: evt.target.value
+      dateTo: selectedDate.toISOString()
     });
   };
 
