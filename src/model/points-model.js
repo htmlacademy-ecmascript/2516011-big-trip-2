@@ -1,15 +1,15 @@
+import Observable from '../framework/observable.js';
 import { mockDestinations} from '../mock/destinations.js';
 import { mockOffers } from '../mock/offers.js';
 import { mockPoints } from '../mock/points.js';
 
-// const POINTS_COUNT = 5;
-
-export default class PointsModel {
+export default class PointsModel extends Observable {
   #points = null;
   #destinations = null;
   #offers = null;
 
   constructor() {
+    super();
     this.#points = [];
     this.#destinations = [];
     this.#offers = [];

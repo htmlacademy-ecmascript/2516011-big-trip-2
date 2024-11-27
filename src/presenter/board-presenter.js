@@ -32,6 +32,10 @@ export default class BoardPresenter {
     this.#pointsModel = pointsModel;
   }
 
+  get pointsWithDetails() {
+    return this.#pointsModel.pointWithDetails;
+  }
+
   init() {
     this.#pointsModel.init();
     this.#pointsWithDetails = this.#pointsModel.pointsWithDetails;
