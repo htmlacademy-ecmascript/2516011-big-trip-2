@@ -1,7 +1,6 @@
 import { generateFilter } from '../mock/filter.js';
 import { render, RenderPosition } from '../framework/render.js';
-import { updateItem } from '../utils/common.js';
-import { SortType } from '../const.js';
+import { EMPTY_MESSAGE, SortType } from '../const.js';
 import { sortPointByDay, sortPointByTime, sortPointByPrice } from '../utils/task.js';
 
 import TripInfoView from '../view/trip-info-view.js';
@@ -22,8 +21,6 @@ export default class BoardPresenter {
 
   #sortComponent = null;
   #currentSortType = SortType.DAY;
-  #sourcedBoardPoints = [];
-  #pointsWithDetails = null;
   #listComponent = new TripEventsListView();
   #tripPointPresenters = new Map();
 
@@ -33,14 +30,20 @@ export default class BoardPresenter {
   }
 
   get pointsWithDetails() {
-    return this.#pointsModel.pointWithDetails;
+    const points = this.#pointsModel.pointsWithDetails;
+    switch (this.#currentSortType) {
+      case SortType.DAY:
+        return [...points].sort(sortPointByDay);
+      case SortType.TIME:
+        return [...points].sort(sortPointByTime);
+      case SortType.PRICE:
+        return [...points].sort(sortPointByPrice);
+      default:
+        return points;
+    }
   }
 
   init() {
-    this.#pointsModel.init();
-    this.#pointsWithDetails = this.#pointsModel.pointsWithDetails;
-    this.#sourcedBoardPoints = this.#pointsModel.pointsWithDetails;
-
     this.#renderBoard();
   }
 
@@ -49,7 +52,7 @@ export default class BoardPresenter {
   }
 
   #renderFilter() {
-    const filters = generateFilter(this.#pointsWithDetails);
+    const filters = generateFilter(this.#pointsModel.pointsWithDetails);
     render(new TripFilterView({filters}), siteFilterElement);
   }
 
@@ -60,32 +63,13 @@ export default class BoardPresenter {
     render(this.#sortComponent, this.#container);
   }
 
-  #sortPoints(sortType) {
-    switch (sortType) {
-      case SortType.DAY:
-        this.#pointsWithDetails.sort(sortPointByDay);
-        break;
-      case SortType.TIME:
-        this.#pointsWithDetails.sort(sortPointByTime);
-        break;
-      case SortType.PRICE:
-        this.#pointsWithDetails.sort(sortPointByPrice);
-        break;
-      default:
-        this.#pointsWithDetails = [...this.#sourcedBoardPoints];
-    }
-    this.#currentSortType = sortType;
-  }
-
   #clearPointsList() {
     this.#tripPointPresenters.forEach((presenter) => presenter.destroy());
     this.#tripPointPresenters.clear();
   }
 
-  #renderTripPointsList () {
-    for (const pointWithDetails of this.#pointsWithDetails) {
-      this.#renderTripPoint(pointWithDetails);
-    }
+  #renderTripPointsList(points) {
+    points.forEach((point) => this.#renderTripPoint(point));
   }
 
   #renderTripPoint(point) {
@@ -100,11 +84,13 @@ export default class BoardPresenter {
   }
 
   #renderNoPoints() {
-    render(new MessageView('Click New Event to create your first point'), this.#container);
+    render(new MessageView(EMPTY_MESSAGE), this.#container);
   }
 
   #renderBoard() {
-    if (this.#pointsWithDetails.length === 0) {
+    const points = this.#pointsModel.pointsWithDetails;
+
+    if (!points || points.length === 0) {
       this.#renderNoPoints();
       return;
     }
@@ -112,12 +98,11 @@ export default class BoardPresenter {
     this.#renderHeader();
     this.#renderFilter();
     this.#renderSort();
-    this.#renderTripPointsList();
+    this.#renderTripPointsList(points);
   }
 
   #handleTripPointChange = (updatedTripPoint) => {
-    this.#pointsWithDetails = updateItem(this.#pointsWithDetails, updatedTripPoint);
-    this.#sourcedBoardPoints = updateItem(this.#sourcedBoardPoints, updatedTripPoint);
+    //здесь необходимо реализовать обновление модели
     this.#tripPointPresenters.get(updatedTripPoint.id).init(updatedTripPoint);
   };
 
@@ -130,8 +115,8 @@ export default class BoardPresenter {
       return;
     }
 
-    this.#sortPoints(sortType);
+    this.#currentSortType = sortType;
     this.#clearPointsList();
-    this.#renderTripPointsList();
+    this.#renderTripPointsList(this.pointsWithDetails);
   };
 }
