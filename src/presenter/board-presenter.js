@@ -1,6 +1,6 @@
 import { generateFilter } from '../mock/filter.js';
 import { render, RenderPosition } from '../framework/render.js';
-import { EMPTY_MESSAGE, SortType } from '../const.js';
+import { EMPTY_MESSAGE, SortType, UpdateType, UserAction } from '../const.js';
 import { sortPointByDay, sortPointByTime, sortPointByPrice } from '../utils/task.js';
 
 import TripInfoView from '../view/trip-info-view.js';
@@ -111,13 +111,13 @@ export default class BoardPresenter {
    */
   #handleViewAction = (actionType, updateType, update) => {
     switch (actionType) {
-      case 'UPDATE_POINT':
+      case UserAction.UPDATE_POINT:
         this.#pointsModel.updatePoint(updateType, update);
         break;
-      case 'ADD_POINT':
+      case UserAction.ADD_POINT:
         this.#pointsModel.addPoint(updateType, update);
         break;
-      case 'DELETE_POINT':
+      case UserAction.DELETE_POINT:
         this.#pointsModel.deletePoint(updateType, update);
         break;
       default:
@@ -132,16 +132,16 @@ export default class BoardPresenter {
    */
   #handleModelEvent = (updateType, data) => {
     switch (updateType) {
-      case 'PATCH':
+      case UpdateType.PATCH:
         // Обновляем конкретную точку
         this.#tripPointPresenters.get(data.id).init(data);
         break;
-      case 'MINOR':
+      case UpdateType.MINOR:
         // Обновляем список
         this.#clearPointsList();
         this.#renderTripPointsList(this.pointsWithDetails);
         break;
-      case 'MAJOR':
+      case UpdateType.MAJOR:
         // Полная перерисовка
         this.#clearPointsList();
         this.#renderBoard();
