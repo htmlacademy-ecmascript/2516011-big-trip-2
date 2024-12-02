@@ -17,4 +17,16 @@ const SortType = {
   OFFER: 'offer',
 };
 
-export { POINT_TYPES, EMPTY_MESSAGE, FilterType, SortType };
+const UserAction = {
+  UPDATE_POINT: 'UPDATE_POINT',
+  ADD_POINT: 'ADD_POINT',
+  DELETE_POINT: 'DELETE_POINT',
+};
+
+const UpdateType = {
+  PATCH: 'PATCH',
+  MINOR: 'MINOR',
+  MAJOR: 'MAJOR',
+};
+
+export { POINT_TYPES, EMPTY_MESSAGE, FilterType, SortType, UserAction, UpdateType };

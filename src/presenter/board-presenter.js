@@ -27,6 +27,8 @@ export default class BoardPresenter {
   constructor({ container, pointsModel }) {
     this.#container = container;
     this.#pointsModel = pointsModel;
+
+    this.#pointsModel.addObserver(this.#handleModelEvent);
   }
 
   get pointsWithDetails() {
@@ -76,7 +78,7 @@ export default class BoardPresenter {
     render(this.#listComponent, this.#container);
     const tripPointPresenter = new TripPointPresenter({
       container: this.#listComponent,
-      onDataChange: this.#handleTripPointChange,
+      onDataChange: this.#handleViewAction,
       onModeChange: this.#handleModeChange
     });
     tripPointPresenter.init(point);
@@ -101,9 +103,52 @@ export default class BoardPresenter {
     this.#renderTripPointsList(points);
   }
 
-  #handleTripPointChange = (updatedTripPoint) => {
-    //здесь необходимо реализовать обновление модели
-    this.#tripPointPresenters.get(updatedTripPoint.id).init(updatedTripPoint);
+  /**
+   * Обработчик действий пользователя.
+   * @param {string} actionType - Тип действия (например, 'ADD_POINT').
+   * @param {string} updateType - Тип обновления (например, 'PATCH', 'MINOR').
+   * @param {object} update - Обновленные данные точки маршрута.
+   */
+  #handleViewAction = (actionType, updateType, update) => {
+    switch (actionType) {
+      case 'UPDATE_POINT':
+        this.#pointsModel.updatePoint(updateType, update);
+        break;
+      case 'ADD_POINT':
+        this.#pointsModel.addPoint(updateType, update);
+        break;
+      case 'DELETE_POINT':
+        this.#pointsModel.deletePoint(updateType, update);
+        break;
+      default:
+        throw new Error(`Unknown action type: ${actionType}`);
+    }
+  };
+
+  /**
+   * Обработчик изменений в модели.
+   * @param {string} updateType - Тип обновления.
+   * @param {object} data - Обновленные данные.
+   */
+  #handleModelEvent = (updateType, data) => {
+    switch (updateType) {
+      case 'PATCH':
+        // Обновляем конкретную точку
+        this.#tripPointPresenters.get(data.id).init(data);
+        break;
+      case 'MINOR':
+        // Обновляем список
+        this.#clearPointsList();
+        this.#renderTripPointsList(this.pointsWithDetails);
+        break;
+      case 'MAJOR':
+        // Полная перерисовка
+        this.#clearPointsList();
+        this.#renderBoard();
+        break;
+      default:
+        throw new Error(`Unknown update type: ${updateType}`);
+    }
   };
 
   #handleModeChange = () => {

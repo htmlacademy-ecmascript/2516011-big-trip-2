@@ -3,6 +3,7 @@ import { render, replace, remove } from '../framework/render.js';
 import TripPointView from '../view/trip-point-view.js';
 import EventEditorView from '../view/event-editor-view.js';
 import TripEventsItemView from '../view/trip-events-item-view.js';
+import { UserAction, UpdateType } from '../const.js';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -52,7 +53,7 @@ export default class TripPointPresenter {
       onCloseButtonClick: this.#handlerCloseButtonClick,
     });
 
-    if (prevPointComponent === null || prevEditorComponent === null) {
+    if (!prevPointComponent || !prevEditorComponent) {
       render(this.#tripPointItem, this.#container.element);
       render(this.#pointComponent, this.#tripPointItem.element);
       return;
@@ -103,11 +104,19 @@ export default class TripPointPresenter {
   };
 
   #handleFavoriteClick = () => {
-    this.#handleDataChange({...this.#point, isFavorite: !this.#point.isFavorite});
+    this.#handleDataChange(
+      UserAction.UPDATE_POINT,
+      UpdateType.MINOR,
+      { ...this.#point, isFavorite: !this.#point.isFavorite }
+    );
   };
 
-  #handlerEditorSubmit = (point) => {
-    this.#handleDataChange(point);
+  #handlerEditorSubmit = (updatedPoint) => {
+    this.#handleDataChange(
+      UserAction.UPDATE_POINT,
+      UpdateType.MINOR,
+      updatedPoint
+    );
     this.#replaceEditorToPoint();
     document.removeEventListener('keydown', this.#escKeyDownHandler);
   };

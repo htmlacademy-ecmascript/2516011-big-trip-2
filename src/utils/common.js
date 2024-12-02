@@ -3,8 +3,4 @@ const getRandomElement = (array) => {
   return array[randomIndex];
 };
 
-function updateItem(items, update) {
-  return items.map((item) => item.id === update.id ? update : item);
-}
-
-export { getRandomElement, updateItem };
+export { getRandomElement };
