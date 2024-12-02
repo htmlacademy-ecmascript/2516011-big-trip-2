@@ -1,5 +1,5 @@
 import AbstractView from '../framework/view/abstract-view';
-import { getFormattedDuration } from '../utils/task.js';
+import { getFormattedDuration } from '../utils/point.js';
 
 function createTripPointTemplate(point, offers) {
   const {

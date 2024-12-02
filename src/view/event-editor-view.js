@@ -176,15 +176,17 @@ function createEventEditorTemplate(data) {
 export default class EventEditorView extends AbstractStatefulView {
   #handleEditorSubmit = null;
   #handleCloseButtonClick = null;
+  #handleDeleteClick = null;
   #pointId = null;
   #datepickerFrom = null;
   #datepickerTo = null;
 
-  constructor({ point, destination, offers, isEventExist, onEditorSubmit, onCloseButtonClick }) {
+  constructor({ point, destination, offers, isEventExist, onEditorSubmit, onCloseButtonClick, onDeleteClick }) {
     super();
     this._setState(EventEditorView.parsePointToState(point, destination, offers, isEventExist));
     this.#handleEditorSubmit = onEditorSubmit;
     this.#handleCloseButtonClick = onCloseButtonClick;
+    this.#handleDeleteClick = onDeleteClick;
 
     this.#pointId = point.id || 0;
 
@@ -214,20 +216,23 @@ export default class EventEditorView extends AbstractStatefulView {
   }
 
   _restoreHandlers() {
-    this.element.addEventListener('submit', this.#editorSubmitHandler);
-
     const typeListElement = this.element.querySelector('.event__type-list');
+    const destinationElement = this.element.querySelector(`#event-destination-${this._state.destination.id}`);
+    const dateFromElement = this.element.querySelector(`#event-start-time-${this.#pointId}`);
+    const dateToElement = this.element.querySelector(`#event-end-time-${this.#pointId}`);
+    const priceElement = this.element.querySelector(`#event-price-${this.#pointId}`);
+    const offerCheckboxes = this.element.querySelectorAll('.event__offer-checkbox');
+    const formElement = this.element;
+    const deleteButtonElement = this.element.querySelector('.event__reset-btn');
+    const rollupButtonElement = formElement.querySelector('.event__rollup-btn');
+
     if (typeListElement) {
       typeListElement.addEventListener('change', this.#eventTypeChangeHandler);
     }
 
-    const destinationElement = this.element.querySelector(`#event-destination-${this._state.destination.id}`);
     if (destinationElement) {
       destinationElement.addEventListener('input', this.#destinationChangeHandler);
     }
-
-    const dateFromElement = this.element.querySelector(`#event-start-time-${this.#pointId}`);
-    const dateToElement = this.element.querySelector(`#event-end-time-${this.#pointId}`);
 
     if (dateFromElement) {
       this.#datepickerFrom = flatpickr(dateFromElement, {
@@ -247,18 +252,25 @@ export default class EventEditorView extends AbstractStatefulView {
       });
     }
 
-    const priceElement = this.element.querySelector(`#event-price-${this.#pointId}`);
     if (priceElement) {
       priceElement.addEventListener('input', this.#priceChangeHandler);
     }
 
-    const offerCheckboxes = this.element.querySelectorAll('.event__offer-checkbox');
     offerCheckboxes.forEach((checkbox) => {
       checkbox.addEventListener('change', this.#offerChangeHandler);
     });
 
-    this.element.querySelector('.event__rollup-btn')
-      .addEventListener('click', this.#handleCloseButtonClick);
+    if (formElement) {
+      formElement.addEventListener('submit', this.#editorSubmitHandler);
+    }
+
+    if (deleteButtonElement) {
+      deleteButtonElement.addEventListener('click', this.#formDeleteClickHandler);
+    }
+
+    if (rollupButtonElement) {
+      rollupButtonElement.addEventListener('click', this.#handleCloseButtonClick);
+    }
   }
 
   #updateOffersByType(type) {
@@ -329,6 +341,11 @@ export default class EventEditorView extends AbstractStatefulView {
     this._setState({
       basePrice: Number(evt.target.value)
     });
+  };
+
+  #formDeleteClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleDeleteClick(EventEditorView.parseStateToPoint(this._state));
   };
 
   static parsePointToState(point, destination, offers, isEventExist) {

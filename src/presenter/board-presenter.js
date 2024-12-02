@@ -1,7 +1,7 @@
 import { generateFilter } from '../mock/filter.js';
 import { render, RenderPosition, remove } from '../framework/render.js';
 import { EMPTY_MESSAGE, SortType, UpdateType, UserAction } from '../const.js';
-import { sortPointByDay, sortPointByTime, sortPointByPrice } from '../utils/task.js';
+import { sortPointByDay, sortPointByTime, sortPointByPrice } from '../utils/point.js';
 
 import TripInfoView from '../view/trip-info-view.js';
 import TripFilterView from '../view/trip-filter-view.js';
@@ -69,10 +69,6 @@ export default class BoardPresenter {
     render(this.#sortComponent, this.#container);
   }
 
-  #renderTripPointsList(points) {
-    points.forEach((point) => this.#renderTripPoint(point));
-  }
-
   #renderTripPoint(point) {
     render(this.#listComponent, this.#container);
     const tripPointPresenter = new TripPointPresenter({
@@ -98,7 +94,7 @@ export default class BoardPresenter {
     }
 
     this.#renderSort();
-    this.#renderTripPointsList(points);
+    points.forEach((point) => this.#renderTripPoint(point));
   }
 
   #clearBoard({ resetSortType = false } = {}) {

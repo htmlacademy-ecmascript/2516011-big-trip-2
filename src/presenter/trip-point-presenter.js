@@ -4,6 +4,7 @@ import TripPointView from '../view/trip-point-view.js';
 import EventEditorView from '../view/event-editor-view.js';
 import TripEventsItemView from '../view/trip-events-item-view.js';
 import { UserAction, UpdateType } from '../const.js';
+import { isDatesEqual } from '../utils/point.js';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -50,6 +51,7 @@ export default class TripPointPresenter {
       offers: this.#point.offers,
       isEventExist: true,
       onEditorSubmit: this.#handlerEditorSubmit,
+      onDeleteClick: this.#handleDeleteClick,
       onCloseButtonClick: this.#handlerCloseButtonClick,
     });
 
@@ -112,13 +114,22 @@ export default class TripPointPresenter {
   };
 
   #handlerEditorSubmit = (updatedPoint) => {
+    const isMinorUpdate = !isDatesEqual(this.#point.dueDate, updatedPoint.dueDate);
     this.#handleDataChange(
       UserAction.UPDATE_POINT,
-      UpdateType.PATCH,
-      updatedPoint
+      isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH,
+      updatedPoint,
     );
     this.#replaceEditorToPoint();
     document.removeEventListener('keydown', this.#escKeyDownHandler);
+  };
+
+  #handleDeleteClick = (point) => {
+    this.#handleDataChange(
+      UserAction.DELETE_POINT,
+      UpdateType.MINOR,
+      point,
+    );
   };
 
   #handlerCloseButtonClick = (evt) => {
