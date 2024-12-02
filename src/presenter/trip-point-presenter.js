@@ -106,7 +106,7 @@ export default class TripPointPresenter {
   #handleFavoriteClick = () => {
     this.#handleDataChange(
       UserAction.UPDATE_POINT,
-      UpdateType.MINOR,
+      UpdateType.PATCH,
       { ...this.#point, isFavorite: !this.#point.isFavorite }
     );
   };
@@ -114,7 +114,7 @@ export default class TripPointPresenter {
   #handlerEditorSubmit = (updatedPoint) => {
     this.#handleDataChange(
       UserAction.UPDATE_POINT,
-      UpdateType.MINOR,
+      UpdateType.PATCH,
       updatedPoint
     );
     this.#replaceEditorToPoint();

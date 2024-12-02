@@ -5,12 +5,14 @@ import { mockPoints } from '../mock/points.js';
 
 export default class PointsModel extends Observable {
   #points = null;
+  #pointsWithDetails = null;
   #destinations = null;
   #offers = null;
 
   constructor() {
     super();
     this.#points = [];
+    this.#pointsWithDetails = [];
     this.#destinations = [];
     this.#offers = [];
   }
@@ -19,6 +21,7 @@ export default class PointsModel extends Observable {
     this.#destinations = mockDestinations;
     this.#offers = mockOffers;
     this.#points = mockPoints;
+    this.#pointsWithDetails = this.pointsWithDetails;
   }
 
   get destinations() {
@@ -54,14 +57,14 @@ export default class PointsModel extends Observable {
    * @param {object} update - Обновляемая точка маршрута.
    */
   updatePoint(updateType, update) {
-    const index = this.#points.findIndex((point) => point.id === update.id);
+    const index = this.#pointsWithDetails.findIndex((point) => point.id === update.id);
     if (index === -1) {
       throw new Error('Can\'t update non-existing point');
     }
-    this.#points = [
-      ...this.#points.slice(0, index),
+    this.#pointsWithDetails = [
+      ...this.#pointsWithDetails.slice(0, index),
       update,
-      ...this.#points.slice(index + 1),
+      ...this.#pointsWithDetails.slice(index + 1),
     ];
     this._notify(updateType, update);
   }
@@ -72,9 +75,9 @@ export default class PointsModel extends Observable {
    * @param {object} update - Новая точка маршрута.
    */
   addPoint(updateType, update) {
-    this.#points = [
+    this.#pointsWithDetails = [
       update,
-      ...this.#points,
+      ...this.#pointsWithDetails,
     ];
     this._notify(updateType, update);
   }
@@ -85,13 +88,13 @@ export default class PointsModel extends Observable {
    * @param {object} update - Удаляемая точка маршрута.
    */
   deletePoint(updateType, update) {
-    const index = this.#points.findIndex((point) => point.id === update.id);
+    const index = this.#pointsWithDetails.findIndex((point) => point.id === update.id);
     if (index === -1) {
       throw new Error('Can\'t delete non-existing point');
     }
-    this.#points = [
-      ...this.#points.slice(0, index),
-      ...this.#points.slice(index + 1),
+    this.#pointsWithDetails = [
+      ...this.#pointsWithDetails.slice(0, index),
+      ...this.#pointsWithDetails.slice(index + 1),
     ];
     this._notify(updateType);
   }
