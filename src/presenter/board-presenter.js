@@ -3,26 +3,18 @@ import { EMPTY_MESSAGE, SortType, UpdateType, UserAction } from '../const.js';
 import { sortPointByDay, sortPointByTime, sortPointByPrice } from '../utils/point.js';
 
 import TripInfoView from '../view/trip-info-view.js';
-import TripFilterView from '../view/trip-filter-view.js';
 import TripEventsListView from '../view/trip-events-list-view.js';
 import SortView from '../view/trip-sort-view.js';
 import MessageView from '../view/message-view.js';
 
 import TripPointPresenter from './trip-point-presenter.js';
+import FilterPresenter from './filter-presenter.js';
 
 import FilterModel from '../model/filter-model.js';
 
-const filters = [
-  {
-    type: 'everything',
-    count: 0,
-  },
-];
-
-const filterModel = new FilterModel();
 const siteMainElement = document.querySelector('.page-header');
 const siteHeaderElement = siteMainElement.querySelector('.trip-main');
-const siteFilterElement = siteMainElement.querySelector('.trip-controls__filters');
+const filterModel = new FilterModel();
 
 export default class BoardPresenter {
   #container = null;
@@ -66,10 +58,13 @@ export default class BoardPresenter {
   }
 
   #renderFilter() {
-    render(new TripFilterView({filters,
-      currentFilterType: 'everything',
-      onFilterTypeChange: () => {}
-    }), siteFilterElement);
+    const siteFilterElement = siteMainElement.querySelector('.trip-controls__filters');
+    const filterPresenter = new FilterPresenter({
+      filterContainer: siteFilterElement,
+      filterModel,
+      pointsModel: this.#pointsModel
+    });
+    filterPresenter.init();
   }
 
   #renderSort() {
