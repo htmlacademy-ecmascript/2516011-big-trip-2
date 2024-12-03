@@ -1,7 +1,5 @@
 const POINT_TYPES = ['taxi', 'bus', 'train', 'ship', 'drive', 'flight', 'check-in', 'sightseeing', 'restaurant'];
 
-const EMPTY_MESSAGE = 'Click New Event to create your first point';
-
 const FilterType = {
   EVERYTHING: 'everything',
   FUTURE: 'future',
@@ -29,4 +27,4 @@ const UpdateType = {
   MAJOR: 'MAJOR',
 };
 
-export { POINT_TYPES, EMPTY_MESSAGE, FilterType, SortType, UserAction, UpdateType };
+export { POINT_TYPES, FilterType, SortType, UserAction, UpdateType };

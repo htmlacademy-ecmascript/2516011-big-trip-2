@@ -1,5 +1,5 @@
 import { render, RenderPosition, remove } from '../framework/render.js';
-import { EMPTY_MESSAGE, SortType, UpdateType, UserAction } from '../const.js';
+import { SortType, UpdateType, UserAction, FilterType } from '../const.js';
 import { sortPointByDay, sortPointByTime, sortPointByPrice } from '../utils/point.js';
 
 import TripInfoView from '../view/trip-info-view.js';
@@ -19,13 +19,14 @@ const siteHeaderElement = siteMainElement.querySelector('.trip-main');
 export default class BoardPresenter {
   #container = null;
   #pointsModel = null;
-
-  #sortComponent = null;
-  #currentSortType = SortType.DAY;
   #filterModel = null;
+  #sortComponent = null;
+  #noPointsComponent = null;
+
+  #currentSortType = SortType.DAY;
+  #filterType = FilterType.EVERYTHING;
   #listComponent = new TripEventsListView();
   #tripPointPresenters = new Map();
-  #noPointsComponent = null;
 
   constructor({ container, pointsModel }) {
     this.#container = container;
@@ -37,9 +38,9 @@ export default class BoardPresenter {
   }
 
   get pointsWithDetails() {
-    const filterType = this.#filterModel.filter;
+    this.#filterType = this.#filterModel.filter;
     const points = this.#pointsModel.pointsWithDetails;
-    const filteredTasks = filter[filterType](points);
+    const filteredTasks = filter[this.#filterType](points);
     switch (this.#currentSortType) {
       case SortType.DAY:
         return filteredTasks.sort(sortPointByDay);
@@ -92,7 +93,9 @@ export default class BoardPresenter {
   }
 
   #renderNoPoints() {
-    this.#noPointsComponent = new MessageView(EMPTY_MESSAGE);
+    this.#noPointsComponent = new MessageView({
+      filterType: this.#filterType
+    });
     render(this.#noPointsComponent, this.#container);
   }
 
