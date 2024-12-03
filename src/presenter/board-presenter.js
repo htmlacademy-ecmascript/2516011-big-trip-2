@@ -10,11 +10,11 @@ import MessageView from '../view/message-view.js';
 import TripPointPresenter from './trip-point-presenter.js';
 import FilterPresenter from './filter-presenter.js';
 
+import {filter} from '../utils/filter.js';
 import FilterModel from '../model/filter-model.js';
 
 const siteMainElement = document.querySelector('.page-header');
 const siteHeaderElement = siteMainElement.querySelector('.trip-main');
-const filterModel = new FilterModel();
 
 export default class BoardPresenter {
   #container = null;
@@ -22,6 +22,7 @@ export default class BoardPresenter {
 
   #sortComponent = null;
   #currentSortType = SortType.DAY;
+  #filterModel = null;
   #listComponent = new TripEventsListView();
   #tripPointPresenters = new Map();
   #noPointsComponent = null;
@@ -29,21 +30,25 @@ export default class BoardPresenter {
   constructor({ container, pointsModel }) {
     this.#container = container;
     this.#pointsModel = pointsModel;
+    this.#filterModel = new FilterModel();
 
     this.#pointsModel.addObserver(this.#handleModelEvent);
+    this.#filterModel.addObserver(this.#handleModelEvent);
   }
 
   get pointsWithDetails() {
+    const filterType = this.#filterModel.filter;
     const points = this.#pointsModel.pointsWithDetails;
+    const filteredTasks = filter[filterType](points);
     switch (this.#currentSortType) {
       case SortType.DAY:
-        return [...points].sort(sortPointByDay);
+        return filteredTasks.sort(sortPointByDay);
       case SortType.TIME:
-        return [...points].sort(sortPointByTime);
+        return filteredTasks.sort(sortPointByTime);
       case SortType.PRICE:
-        return [...points].sort(sortPointByPrice);
+        return filteredTasks.sort(sortPointByPrice);
       default:
-        return points;
+        return filteredTasks;
     }
   }
 
@@ -61,7 +66,7 @@ export default class BoardPresenter {
     const siteFilterElement = siteMainElement.querySelector('.trip-controls__filters');
     const filterPresenter = new FilterPresenter({
       filterContainer: siteFilterElement,
-      filterModel,
+      filterModel: this.#filterModel,
       pointsModel: this.#pointsModel
     });
     filterPresenter.init();
