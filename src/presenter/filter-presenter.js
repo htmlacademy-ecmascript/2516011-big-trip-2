@@ -21,7 +21,7 @@ export default class FilterPresenter {
     const points = this.#pointsModel.pointsWithDetails;
     return Object.values(FilterType).map((type) => ({
       type,
-      count: filter[type](points).length
+      count: filter[type](points).length //Смотри сюды. Возможно не понадобится => убрать при сдаче проекта
     }));
   }
 
