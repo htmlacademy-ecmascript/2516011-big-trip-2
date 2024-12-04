@@ -198,7 +198,7 @@ export default class BoardPresenter {
   };
 
   #handleModeChange = () => {
-    this.#newTripPointPresenter.destroy();
+    this.#newTripPointPresenter?.destroy();
     this.#tripPointPresenters.forEach((presenter) => presenter.resetView());
   };
 
