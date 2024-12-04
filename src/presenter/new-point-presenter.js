@@ -4,6 +4,7 @@ import {nanoid} from 'nanoid';
 import {UserAction, UpdateType} from '../const.js';
 
 export default class NewPointPresenter {
+  #destinations = null;
   #pointListContainer = null;
   #handleDataChange = null;
   #handleDestroy = null;
@@ -15,16 +16,21 @@ export default class NewPointPresenter {
     this.#handleDestroy = onDestroy;
   }
 
-  init() {
+  init(destinations) {
+    this.#destinations = destinations;
+
     if (this.#pointEditComponent !== null) {
       return;
     }
+
     this.#pointEditComponent = new EventEditorView({
       isEventExist: false,
+      destinations: this.#destinations,
       container: this.#pointListContainer,
       onEditorSubmit: this.#handleFormSubmit,
       onDeleteClick: this.#handleDeleteClick,
     });
+
     render(this.#pointEditComponent, this.#pointListContainer, RenderPosition.AFTERBEGIN);
     document.addEventListener('keydown', this.#escKeyDownHandler);
   }

@@ -13,6 +13,7 @@ const Mode = {
 
 export default class TripPointPresenter {
   #point = null;
+  #destinations = null;
   #container = null;
   #handleDataChange = null;
   #handleModeChange = null;
@@ -29,15 +30,15 @@ export default class TripPointPresenter {
     this.#handleModeChange = onModeChange;
   }
 
-  init(point) {
+  init(point, destinations) {
     this.#point = point;
+    this.#destinations = destinations;
 
     const prevPointComponent = this.#pointComponent;
     const prevEditorComponent = this.#editorComponent;
 
     this.#pointComponent = new TripPointView({
       point: this.#point,
-      offers: this.#point.offers,
       onEditButtonClick: () => {
         this.#replacePointToEditor();
         document.addEventListener('keydown', this.#escKeyDownHandler);
@@ -47,8 +48,7 @@ export default class TripPointPresenter {
 
     this.#editorComponent = new EventEditorView({
       point: this.#point,
-      destination: this.#point.destination,
-      offers: this.#point.offers,
+      destinations: this.#destinations,
       isEventExist: true,
       onEditorSubmit: this.#handlerEditorSubmit,
       onDeleteClick: this.#handleDeleteClick,

@@ -40,7 +40,7 @@ export default class PointsModel extends Observable {
     return this.#points.map((point) => {
       const destination = this.#destinations.find((dest) => dest.id === point.destination);
       const offersForType = this.#offers.find((offer) => offer.type === point.type)?.offers || [];
-      const pointOffers = offersForType.filter((offer) => point.offers.includes(offer.id));
+      const pointOffers = Array.isArray(point.offers) ? offersForType.filter((offer) => point.offers.includes(offer.id)) : [];
 
       return {
         ...point,
@@ -54,8 +54,8 @@ export default class PointsModel extends Observable {
   _extractBasePointData(point) {
     return {
       ...point,
-      destination: point.destination.id,
-      offers: point.offers.map((offer) => offer.id),
+      destination: point.destination?.id || null,
+      offers: point.offers?.map((offer) => offer.id) || null,
     };
   }
 

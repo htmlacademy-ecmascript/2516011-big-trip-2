@@ -9,30 +9,9 @@ const BLANK_POINT = {
   basePrice: 0,
   dateFrom: new Date().toISOString(),
   dateTo: new Date().toISOString(),
-  destination: {
-    id: 'bfa5cb75-a1fe-4b77-a83c-0e528e910e04',
-    name: 'Chamonix',
-    description: 'Chamonix, is a beautiful city, a true Asian pearl, with crowded streets.',
-    pictures: [
-      {
-        src: 'http://picsum.photos/300/200?r=0.0762563005163317',
-        description: 'Chamonix parliament building'
-      }
-    ]
-  },
+  destination: null,
   isFavorite: false,
-  offers: [
-    {
-      id: 'b4c3e4e6-9053-42ce-b747-e281314baa31',
-      title: 'Upgrade to a business class',
-      price: 120
-    },
-    {
-      id: 'e3f4e556-89c3-41bb-bae2-45b2d58d5512',
-      title: 'Choose a premium taxi',
-      price: 200
-    }
-  ],
+  offers: null,
   type: 'taxi',
   typeOffers: [
     {
@@ -113,7 +92,11 @@ function createPriceInputTemplate(pointId, basePrice) {
 
 
 function createOfferMarkup(offers) {
-  return offers.map((offer) => `
+  if (!offers) {
+    return '';
+  }
+
+  const offerLabels = offers.map((offer) => `
     <div class="event__offer-selector">
       <input
         class="event__offer-checkbox visually-hidden"
@@ -128,38 +111,63 @@ function createOfferMarkup(offers) {
         <span class="event__offer-price">${offer.price}</span>
       </label>
     </div>`).join('');
+
+  return `
+    <section class="event__section event__section--offers">
+      <h3 class="event__section-title event__section-title--offers">Offers</h3>
+      <div class="event__available-offers">${offerLabels}</div>
+    </section>
+  `;
 }
 
-function createPicturesMarkup(destination) {
-  return destination.pictures && Array.isArray(destination.pictures)
-    ? destination.pictures.map((picture) => `
-        <img class="event__photo" src="${picture.src}" alt="${picture.description}">
-      `).join('')
-    : '';
-}
+function createDestinationTemplate(destination, destinations, type) {
+  const destinationOptions = destinations
+    .map(({ name }) => `<option value="${name}"></option>`)
+    .join('');
 
-function createDestinationTemplate(destination, type) {
   return `
     <div class="event__field-group event__field-group--destination">
-      <label class="event__label event__type-output" for="event-destination-${destination.id}">
+      <label class="event__label event__type-output" for="event-destination-${destination?.id || '1'}">
         ${type.charAt(0).toUpperCase() + type.slice(1)}
       </label>
       <input
         class="event__input event__input--destination"
-        id="event-destination-${destination.id}"
+        id="event-destination-${destination?.id || '1'}"
         type="text"
         name="event-destination"
-        value="${destination.name || ''}"
-        list="destination-list-${destination.id}"
+        value="${destination?.name || ''}"
+        list="destination-list-${destination?.id || '1'}"
       >
-      <datalist id="destination-list-${destination.id}">
-        <option value="${destination.name}"></option>
+      <datalist id="destination-list-${destination?.id || '1'}">
+        ${destinationOptions}
       </datalist>
     </div>
   `;
 }
 
-function createEventEditorTemplate(data) {
+function creatDestinationDescription(destination) {
+  if (!destination) {
+    return '';
+  }
+
+  const picturesMarkup = destination.pictures && Array.isArray(destination.pictures)
+    ? destination.pictures.map((picture) => `
+        <img class="event__photo" src="${picture.src}" alt="${picture.description}">
+      `).join('')
+    : '';
+
+  return `
+    <section class="event__section event__section--destination">
+      <h3 class="event__section-title event__section-title--destination">Destination</h3>
+      <p class="event__destination-description">${destination.description || ''}</p>
+    </section>
+    <div class="event__photos-container">
+      <div class="event__photos-tape">${picturesMarkup}</div>
+    </div>
+  `;
+}
+
+function createEventEditorTemplate(data, destinations) {
   const {
     type ,
     basePrice = 0,
@@ -172,9 +180,9 @@ function createEventEditorTemplate(data) {
 
   const pointId = data.id || 0;
   const offerMarkup = createOfferMarkup(offers);
-  const picturesMarkup = createPicturesMarkup(destination);
+  const destinationDescription = creatDestinationDescription(destination);
+  const destinationTemplate = createDestinationTemplate(destination, destinations, type);
   const eventTypeTemplate = createEventTypeTemplate(pointId, type);
-  const destinationTemplate = createDestinationTemplate(destination, type);
   const dateInputsTemplate = createDateInputsTemplate(pointId, dateFrom, dateTo);
   const priceInputTemplate = createPriceInputTemplate(pointId, basePrice);
 
@@ -201,17 +209,8 @@ function createEventEditorTemplate(data) {
         ${isEventExist ? '<button class="event__reset-btn" type="reset">Delete</button> <button class="event__rollup-btn" type="button"> <span class="visually-hidden">Open event</span></button>' : '<button class="event__reset-btn" type="reset">Cancel</button>'}
       </header>
       <section class="event__details">
-        <section class="event__section event__section--offers">
-          <h3 class="event__section-title event__section-title--offers">Offers</h3>
-          <div class="event__available-offers">${offerMarkup}</div>
-        </section>
-        <section class="event__section event__section--destination">
-          <h3 class="event__section-title event__section-title--destination">Destination</h3>
-          <p class="event__destination-description">${destination.description || ''}</p>
-        </section>
-        <div class="event__photos-container">
-          <div class="event__photos-tape">${picturesMarkup}</div>
-        </div>
+        ${offerMarkup}
+        ${destinationDescription}
       </section>
     </form>
   `;
@@ -219,26 +218,29 @@ function createEventEditorTemplate(data) {
 
 export default class EventEditorView extends AbstractStatefulView {
   #handleEditorSubmit = null;
+  #destinations = null;
   #handleCloseButtonClick = null;
   #handleDeleteClick = null;
   #pointId = null;
   #datepickerFrom = null;
   #datepickerTo = null;
 
-  constructor({ point = BLANK_POINT, isEventExist, onEditorSubmit, onCloseButtonClick, onDeleteClick}) {
+  constructor({ point = BLANK_POINT, destinations, isEventExist, onEditorSubmit, onCloseButtonClick, onDeleteClick}) {
     super();
     this._setState(EventEditorView.parsePointToState(point, isEventExist));
     this.#handleEditorSubmit = onEditorSubmit;
     this.#handleCloseButtonClick = onCloseButtonClick;
     this.#handleDeleteClick = onDeleteClick;
 
+    this.#destinations = destinations;
     this.#pointId = point.id || 0;
 
     this._restoreHandlers();
   }
 
   get template() {
-    return createEventEditorTemplate(this._state);
+    console.log(this.#destinations);
+    return createEventEditorTemplate(this._state, this.#destinations);
   }
 
   removeElement() {
@@ -385,7 +387,7 @@ export default class EventEditorView extends AbstractStatefulView {
   #priceChangeHandler = (evt) => {
     evt.preventDefault();
     this._setState({
-      basePrice: Number(evt.target.value)
+      basePrice: Number(evt.target.value.replace(/[^\d]/g, ''))
     });
   };
 
