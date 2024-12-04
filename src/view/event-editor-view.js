@@ -5,6 +5,50 @@ import flatpickr from 'flatpickr';
 
 import 'flatpickr/dist/themes/material_blue.css';
 
+const BLANK_POINT = {
+  basePrice: 0,
+  dateFrom: new Date().toISOString(),
+  dateTo: new Date().toISOString(),
+  destination: {
+    id: 'bfa5cb75-a1fe-4b77-a83c-0e528e910e04',
+    name: 'Chamonix',
+    description: 'Chamonix, is a beautiful city, a true Asian pearl, with crowded streets.',
+    pictures: [
+      {
+        src: 'http://picsum.photos/300/200?r=0.0762563005163317',
+        description: 'Chamonix parliament building'
+      }
+    ]
+  },
+  isFavorite: false,
+  offers: [
+    {
+      id: 'b4c3e4e6-9053-42ce-b747-e281314baa31',
+      title: 'Upgrade to a business class',
+      price: 120
+    },
+    {
+      id: 'e3f4e556-89c3-41bb-bae2-45b2d58d5512',
+      title: 'Choose a premium taxi',
+      price: 200
+    }
+  ],
+  type: 'taxi',
+  typeOffers: [
+    {
+      id: 'b4c3e4e6-9053-42ce-b747-e281314baa31',
+      title: 'Upgrade to a business class',
+      price: 120
+    },
+    {
+      id: 'e3f4e556-89c3-41bb-bae2-45b2d58d5512',
+      title: 'Choose a premium taxi',
+      price: 200
+    }
+  ],
+  isEventExist: true
+};
+
 function createEventTypeTemplate(pointId, type) {
   return POINT_TYPES.map((eventType) => `
     <div class="event__type-item">
@@ -117,13 +161,13 @@ function createDestinationTemplate(destination, type) {
 
 function createEventEditorTemplate(data) {
   const {
-    type = 'flight',
+    type ,
     basePrice = 0,
     destination,
     offers,
     isEventExist,
-    dateFrom = new Date().toISOString(),
-    dateTo = new Date().toISOString(),
+    dateFrom,
+    dateTo,
   } = data;
 
   const pointId = data.id || 0;
@@ -181,9 +225,9 @@ export default class EventEditorView extends AbstractStatefulView {
   #datepickerFrom = null;
   #datepickerTo = null;
 
-  constructor({ point, destination, offers, isEventExist, onEditorSubmit, onCloseButtonClick, onDeleteClick }) {
+  constructor({ point = BLANK_POINT, isEventExist, onEditorSubmit, onCloseButtonClick, onDeleteClick}) {
     super();
-    this._setState(EventEditorView.parsePointToState(point, destination, offers, isEventExist));
+    this._setState(EventEditorView.parsePointToState(point, isEventExist));
     this.#handleEditorSubmit = onEditorSubmit;
     this.#handleCloseButtonClick = onCloseButtonClick;
     this.#handleDeleteClick = onDeleteClick;
@@ -211,13 +255,19 @@ export default class EventEditorView extends AbstractStatefulView {
     }
   }
 
-  reset(point, destination, offers, isEventExist) {
-    this.updateElement(EventEditorView.parsePointToState(point, destination, offers, isEventExist));
+  reset(point, isEventExist) {
+    this.updateElement(EventEditorView.parsePointToState(point, isEventExist));
   }
 
   _restoreHandlers() {
     const typeListElement = this.element.querySelector('.event__type-list');
-    const destinationElement = this.element.querySelector(`#event-destination-${this._state.destination.id}`);
+    if (this._state.destination && typeof this._state.destination.id === 'number') {
+      const destinationElement = this.element.querySelector(`#event-destination-${this._state.destination.id}`);
+
+      if (destinationElement) {
+        destinationElement.addEventListener('input', this.#destinationChangeHandler);
+      }
+    }
     const dateFromElement = this.element.querySelector(`#event-start-time-${this.#pointId}`);
     const dateToElement = this.element.querySelector(`#event-end-time-${this.#pointId}`);
     const priceElement = this.element.querySelector(`#event-price-${this.#pointId}`);
@@ -228,10 +278,6 @@ export default class EventEditorView extends AbstractStatefulView {
 
     if (typeListElement) {
       typeListElement.addEventListener('change', this.#eventTypeChangeHandler);
-    }
-
-    if (destinationElement) {
-      destinationElement.addEventListener('input', this.#destinationChangeHandler);
     }
 
     if (dateFromElement) {
@@ -348,8 +394,8 @@ export default class EventEditorView extends AbstractStatefulView {
     this.#handleDeleteClick(EventEditorView.parseStateToPoint(this._state));
   };
 
-  static parsePointToState(point, destination, offers, isEventExist) {
-    return { ...point, destination, offers, isEventExist };
+  static parsePointToState(point, isEventExist) {
+    return { ...point, isEventExist };
   }
 
   static parseStateToPoint(state) {

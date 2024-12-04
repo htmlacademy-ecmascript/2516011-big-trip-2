@@ -6,6 +6,5 @@ document.addEventListener('DOMContentLoaded', () => {
   const pointsModel = new PointsModel();
   pointsModel.init();
   const boardPresenter = new BoardPresenter({container: siteTripEventsElement, pointsModel: pointsModel});
-
   boardPresenter.init();
 });

@@ -51,6 +51,14 @@ export default class PointsModel extends Observable {
     });
   }
 
+  _extractBasePointData(point) {
+    return {
+      ...point,
+      destination: point.destination.id,
+      offers: point.offers.map((offer) => offer.id),
+    };
+  }
+
   /**
    * Обновляет существующую точку маршрута.
    * @param {string} updateType - Тип обновления.
@@ -66,9 +74,10 @@ export default class PointsModel extends Observable {
       update,
       ...this.#pointsWithDetails.slice(index + 1),
     ];
+    const baseUpdate = this._extractBasePointData(update);
     this.#points = [
       ...this.#points.slice(0, index),
-      update,
+      baseUpdate,
       ...this.#points.slice(index + 1),
     ];
     this._notify(updateType, update);
@@ -84,8 +93,9 @@ export default class PointsModel extends Observable {
       update,
       ...this.#pointsWithDetails,
     ];
+    const baseUpdate = this._extractBasePointData(update);
     this.#points = [
-      update,
+      baseUpdate,
       ...this.#points,
     ];
     this._notify(updateType, update);
