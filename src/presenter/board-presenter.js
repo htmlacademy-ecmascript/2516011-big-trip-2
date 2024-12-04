@@ -67,7 +67,7 @@ export default class BoardPresenter {
       onClick: this.#handleNewPointButtonClick
     });
     render(this.#newPointButtonComponent, siteHeaderElement);
-    render(new TripInfoView(), siteHeaderElement, RenderPosition.AFTERBEGIN);
+    render(new TripInfoView({points: this.#pointsModel.pointsWithDetails}), siteHeaderElement, RenderPosition.AFTERBEGIN);
   }
 
   #renderFilter() {
