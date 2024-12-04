@@ -1,6 +1,6 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view';
 import { POINT_TYPES } from '../const.js';
-import { getOffersByType, getDestinationDetails, getDestinationNames } from '../utils/data-fetch.js';
+import { getOffersByType, getOfferById, getDestinationDetails, getDestinationNames } from '../utils/data-fetch.js';
 import flatpickr from 'flatpickr';
 
 import 'flatpickr/dist/themes/material_blue.css';
@@ -13,22 +13,11 @@ const BLANK_POINT = {
   isFavorite: false,
   offers: getOffersByType('flight'),
   type: 'flight',
-  typeOffers: [
-    {
-      id: 'b4c3e4e6-9053-42ce-b747-e281314baa31',
-      title: 'Upgrade to a business class',
-      price: 120
-    },
-    {
-      id: 'e3f4e556-89c3-41bb-bae2-45b2d58d5512',
-      title: 'Choose a premium taxi',
-      price: 200
-    }
-  ],
+  typeOffers: null,
   isEventExist: true
 };
 
-function createEventTypeTemplate(pointId, type) {
+function createEventTypeTemplate(pointId) {
   return POINT_TYPES.map((eventType) => `
     <div class="event__type-item">
       <input
@@ -37,7 +26,7 @@ function createEventTypeTemplate(pointId, type) {
         type="radio"
         name="event-type"
         value="${eventType}"
-        ${eventType === type ? 'checked' : ''}
+        checked}
       >
       <label class="event__type-label event__type-label--${eventType}" for="event-type-${eventType}-${pointId}">
         ${eventType.charAt(0).toUpperCase() + eventType.slice(1)}
@@ -91,19 +80,20 @@ function createPriceInputTemplate(pointId, basePrice) {
 }
 
 
-function createOfferMarkup(offers) {
-  if (!offers || offers.length === 0) {
+function createOfferMarkup(offers, type) {
+  const offerExist = getOffersByType(type);
+  if (!offerExist || offerExist.length === 0) {
     return '';
   }
 
-  const offerLabels = offers.map((offer) => `
-    <div class="event__offer-selector">
+  const offerLabels = offerExist.map((offer) =>
+    `<div class="event__offer-selector">
       <input
         class="event__offer-checkbox visually-hidden"
         id="event-offer-${offer.title}-${offer.id}"
         type="checkbox"
         name="event-offer-${offer.title}"
-        ${offer.isChecked ? 'checked' : ''}
+        ${offers.some((attachedOffer) => attachedOffer.id === offer.id) ? 'checked' : ''}
       >
       <label class="event__offer-label" for="event-offer-${offer.title}-${offer.id}">
         <span class="event__offer-title">${offer.title}</span>
@@ -169,7 +159,7 @@ function creatDestinationDescription(destination) {
 
 function createEventEditorTemplate(data, destinations) {
   const {
-    type ,
+    type,
     basePrice = 0,
     destination,
     offers,
@@ -179,7 +169,7 @@ function createEventEditorTemplate(data, destinations) {
   } = data;
 
   const pointId = data.id || 0;
-  const offerMarkup = createOfferMarkup(offers);
+  const offerMarkup = createOfferMarkup(offers, type);
   const destinationDescription = creatDestinationDescription(destination);
   const destinationTemplate = createDestinationTemplate(destination, destinations, type);
   const eventTypeTemplate = createEventTypeTemplate(pointId, type);
@@ -264,7 +254,6 @@ export default class EventEditorView extends AbstractStatefulView {
     const typeListElement = this.element.querySelector('.event__type-list');
 
     const destinationElement = this.element.querySelector(`#event-destination-${this._state.destination?.id || '1'}`);
-
     if (destinationElement) {
       destinationElement.addEventListener('change', this.#destinationChangeHandler);
     }
@@ -347,28 +336,23 @@ export default class EventEditorView extends AbstractStatefulView {
     this.#updateOffersByType(evt.target.value);
   };
 
-  #updateTotalPrice() {
-    const selectedOffers = this._state.offers.filter((offer) => offer.isChecked);
-    const offersTotal = selectedOffers.reduce((sum, offer) => sum + offer.price, 0);
-    const totalPrice = this._state.basePrice + offersTotal;
-    this._setState({ basePrice: totalPrice });
-  }
-
   #offerChangeHandler = (evt) => {
     evt.preventDefault();
-    const updatedOffers = this._state.offers.map((offer) => {
-      if (offer.id === evt.target.id.split('-')[2]) {
-        return { ...offer, isChecked: evt.target.checked };
-      }
-      return offer;
-    });
-    this._setState({ offers: updatedOffers });
-    this.#updateTotalPrice();
-  };
 
+    const offerId = evt.target.id.split('-').slice(-5).join('-');
+    const isChecked = evt.target.checked;
+
+    const updatedOffers = isChecked
+      ? [...this._state.offers, getOfferById(offerId)]
+      : this._state.offers.filter((offer) => offer.id !== offerId);
+
+    this._setState({ offers: updatedOffers });
+  };
 
   #editorSubmitHandler = (evt) => {
     evt.preventDefault();
+
+    // Вызываем обработчик передачи данных
     this.#handleEditorSubmit(EventEditorView.parseStateToPoint(this._state));
   };
 
