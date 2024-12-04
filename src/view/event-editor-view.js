@@ -351,8 +351,6 @@ export default class EventEditorView extends AbstractStatefulView {
 
   #editorSubmitHandler = (evt) => {
     evt.preventDefault();
-
-    // Вызываем обработчик передачи данных
     this.#handleEditorSubmit(EventEditorView.parseStateToPoint(this._state));
   };
 

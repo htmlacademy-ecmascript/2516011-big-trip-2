@@ -30,6 +30,7 @@ export default class BoardPresenter {
   #filterType = FilterType.EVERYTHING;
   #pointListComponent = new TripEventsListView();
   #tripPointPresenters = new Map();
+  #newTripPointPresenter = null;
 
   constructor({ container, pointsModel }) {
     this.#container = container;
@@ -93,13 +94,13 @@ export default class BoardPresenter {
     this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
 
     render(this.#pointListComponent, this.#container);
-    const newTripPointPresenter = new NewPointPresenter({
+    this.#newTripPointPresenter = new NewPointPresenter({
       pointListContainer: this.#pointListComponent.element,
       onDataChange: this.#handleViewAction,
       onDestroy: this.#handleNewPointFormClose
     });
 
-    newTripPointPresenter.init();
+    this.#newTripPointPresenter.init();
   }
 
   #renderTripPoint(point) {
@@ -197,6 +198,7 @@ export default class BoardPresenter {
   };
 
   #handleModeChange = () => {
+    this.#newTripPointPresenter.destroy();
     this.#tripPointPresenters.forEach((presenter) => presenter.resetView());
   };
 
