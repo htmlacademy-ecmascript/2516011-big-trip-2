@@ -1,7 +1,9 @@
 import {remove, render, RenderPosition} from '../framework/render.js';
-import EventEditorView from '../view/event-editor-view.js';
 import {nanoid} from 'nanoid';
 import {UserAction, UpdateType} from '../const.js';
+
+import EventEditorView from '../view/event-editor-view.js';
+import TripEventsItemView from '../view/trip-events-item-view.js';
 
 export default class NewPointPresenter {
   #destinations = null;
@@ -9,6 +11,7 @@ export default class NewPointPresenter {
   #handleDataChange = null;
   #handleDestroy = null;
   #pointEditComponent = null;
+  #tripPointItem = new TripEventsItemView();
 
   constructor({pointListContainer, onDataChange, onDestroy}) {
     this.#pointListContainer = pointListContainer;
@@ -31,7 +34,8 @@ export default class NewPointPresenter {
       onDeleteClick: this.#handleDeleteClick,
     });
 
-    render(this.#pointEditComponent, this.#pointListContainer, RenderPosition.AFTERBEGIN);
+    render(this.#tripPointItem, this.#pointListContainer, RenderPosition.AFTERBEGIN);
+    render(this.#pointEditComponent, this.#tripPointItem.element, RenderPosition.AFTERBEGIN);
     document.addEventListener('keydown', this.#escKeyDownHandler);
   }
 
@@ -40,7 +44,7 @@ export default class NewPointPresenter {
       return;
     }
     this.#handleDestroy();
-    remove(this.#pointEditComponent);
+    remove(this.#tripPointItem);
     this.#pointEditComponent = null;
     document.removeEventListener('keydown', this.#escKeyDownHandler);
   }
