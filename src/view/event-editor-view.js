@@ -11,8 +11,8 @@ const BLANK_POINT = {
   dateTo: new Date().toISOString(),
   destination: null,
   isFavorite: false,
-  offers: null,
-  type: 'taxi',
+  offers: getOffersByType('flight'),
+  type: 'flight',
   typeOffers: [
     {
       id: 'b4c3e4e6-9053-42ce-b747-e281314baa31',
@@ -92,7 +92,7 @@ function createPriceInputTemplate(pointId, basePrice) {
 
 
 function createOfferMarkup(offers) {
-  if (!offers) {
+  if (!offers || offers.length === 0) {
     return '';
   }
 
@@ -146,7 +146,7 @@ function createDestinationTemplate(destination, destinations, type) {
 }
 
 function creatDestinationDescription(destination) {
-  if (!destination) {
+  if (!destination || destination.length === 0) {
     return '';
   }
 
@@ -262,13 +262,13 @@ export default class EventEditorView extends AbstractStatefulView {
 
   _restoreHandlers() {
     const typeListElement = this.element.querySelector('.event__type-list');
-    if (this._state.destination && typeof this._state.destination.id === 'number') {
-      const destinationElement = this.element.querySelector(`#event-destination-${this._state.destination.id}`);
 
-      if (destinationElement) {
-        destinationElement.addEventListener('input', this.#destinationChangeHandler);
-      }
+    const destinationElement = this.element.querySelector(`#event-destination-${this._state.destination?.id || '1'}`);
+
+    if (destinationElement) {
+      destinationElement.addEventListener('change', this.#destinationChangeHandler);
     }
+
     const dateFromElement = this.element.querySelector(`#event-start-time-${this.#pointId}`);
     const dateToElement = this.element.querySelector(`#event-end-time-${this.#pointId}`);
     const priceElement = this.element.querySelector(`#event-price-${this.#pointId}`);
@@ -320,6 +320,21 @@ export default class EventEditorView extends AbstractStatefulView {
     }
   }
 
+  #updateDestinationDetails(destinationName) {
+    const updatedDestinations = getDestinationDetails(destinationName);
+    if (!updatedDestinations) {
+      return;
+    }
+    this.updateElement({ destination: updatedDestinations });
+  }
+
+  #destinationChangeHandler = (evt) => {
+    this.updateElement({
+      name: evt.target.value,
+    });
+    this.#updateDestinationDetails(evt.target.value);
+  };
+
   #updateOffersByType(type) {
     const updatedOffers = getOffersByType(type);
     this.updateElement({ offers: updatedOffers });
@@ -332,21 +347,6 @@ export default class EventEditorView extends AbstractStatefulView {
     this.#updateOffersByType(evt.target.value);
   };
 
-  #updateDestinationDetails(destinationName) {
-    const destination = getDestinationDetails(destinationName);
-    this._setState({
-      destination: {
-        ...destination,
-        name: destinationName,
-      },
-    });
-  }
-
-  #destinationChangeHandler = (evt) => {
-    evt.preventDefault();
-    this.#updateDestinationDetails(evt.target.value);
-  };
-
   #updateTotalPrice() {
     const selectedOffers = this._state.offers.filter((offer) => offer.isChecked);
     const offersTotal = selectedOffers.reduce((sum, offer) => sum + offer.price, 0);
@@ -355,6 +355,7 @@ export default class EventEditorView extends AbstractStatefulView {
   }
 
   #offerChangeHandler = (evt) => {
+    evt.preventDefault();
     const updatedOffers = this._state.offers.map((offer) => {
       if (offer.id === evt.target.id.split('-')[2]) {
         return { ...offer, isChecked: evt.target.checked };
