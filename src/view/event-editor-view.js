@@ -1,6 +1,6 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view';
 import { POINT_TYPES } from '../const.js';
-import { getOffersByType, getDestinationDetails } from '../utils/data-fetch.js';
+import { getOffersByType, getDestinationDetails, getDestinationNames } from '../utils/data-fetch.js';
 import flatpickr from 'flatpickr';
 
 import 'flatpickr/dist/themes/material_blue.css';
@@ -122,7 +122,7 @@ function createOfferMarkup(offers) {
 
 function createDestinationTemplate(destination, destinations, type) {
   const destinationOptions = destinations
-    .map(({ name }) => `<option value="${name}"></option>`)
+    .map((name) => `<option value="${name}"></option>`)
     .join('');
 
   return `
@@ -225,21 +225,20 @@ export default class EventEditorView extends AbstractStatefulView {
   #datepickerFrom = null;
   #datepickerTo = null;
 
-  constructor({ point = BLANK_POINT, destinations, isEventExist, onEditorSubmit, onCloseButtonClick, onDeleteClick}) {
+  constructor({ point = BLANK_POINT, isEventExist, onEditorSubmit, onCloseButtonClick, onDeleteClick}) {
     super();
     this._setState(EventEditorView.parsePointToState(point, isEventExist));
     this.#handleEditorSubmit = onEditorSubmit;
     this.#handleCloseButtonClick = onCloseButtonClick;
     this.#handleDeleteClick = onDeleteClick;
 
-    this.#destinations = destinations;
+    this.#destinations = getDestinationNames();
     this.#pointId = point.id || 0;
 
     this._restoreHandlers();
   }
 
   get template() {
-    console.log(this.#destinations);
     return createEventEditorTemplate(this._state, this.#destinations);
   }
 

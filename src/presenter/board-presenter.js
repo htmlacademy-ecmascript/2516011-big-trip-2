@@ -98,7 +98,7 @@ export default class BoardPresenter {
       onDestroy: this.#handleNewPointFormClose
     });
 
-    newTripPointPresenter.init(this.#pointsModel.destinations);
+    newTripPointPresenter.init();
   }
 
   #renderTripPoint(point) {
@@ -108,7 +108,7 @@ export default class BoardPresenter {
       onDataChange: this.#handleViewAction,
       onModeChange: this.#handleModeChange
     });
-    tripPointPresenter.init(point, this.#pointsModel.destinations);
+    tripPointPresenter.init(point);
     this.#tripPointPresenters.set(point.id, tripPointPresenter);
   }
 
@@ -180,7 +180,7 @@ export default class BoardPresenter {
   #handleModelEvent = (updateType, data) => {
     switch (updateType) {
       case UpdateType.PATCH:
-        this.#tripPointPresenters.get(data.id).init(data, this.#pointsModel.destinations);
+        this.#tripPointPresenters.get(data.id).init(data);
         break;
       case UpdateType.MINOR:
         this.#clearBoard();

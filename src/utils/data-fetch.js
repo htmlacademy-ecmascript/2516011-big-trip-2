@@ -8,4 +8,6 @@ const getOffersByType = (type) => {
 
 const getDestinationDetails = (destinationId) => mockDestinations.find((destination) => destination.id === destinationId) || null;
 
-export {getOffersByType, getDestinationDetails};
+const getDestinationNames = () => mockDestinations.map((destination) => destination.name);
+
+export {getOffersByType, getDestinationDetails, getDestinationNames};
