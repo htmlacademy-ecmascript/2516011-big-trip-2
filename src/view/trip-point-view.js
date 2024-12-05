@@ -1,13 +1,14 @@
 import AbstractView from '../framework/view/abstract-view';
-import { getFormattedDuration } from '../utils/task.js';
+import { getFormattedDuration } from '../utils/point.js';
 
-function createTripPointTemplate(point, offers) {
+function createTripPointTemplate(point) {
   const {
     type = 'flight',
     basePrice = 0,
     dateFrom = '',
     dateTo = '',
     destination = {},
+    offers = [],
     isFavorite = false
   } = point || {};
 
@@ -57,14 +58,12 @@ function createTripPointTemplate(point, offers) {
 
 export default class TripPointView extends AbstractView {
   #point = null;
-  #offers = null;
   #handleEditClick = null;
   #handleFavoriteClick = null;
 
-  constructor({ point, offers, onEditButtonClick, onFavoriteClick }) {
+  constructor({ point, onEditButtonClick, onFavoriteClick }) {
     super();
     this.#point = point;
-    this.#offers = offers;
     this.#handleEditClick = onEditButtonClick;
     this.#handleFavoriteClick = onFavoriteClick;
 
@@ -76,7 +75,7 @@ export default class TripPointView extends AbstractView {
   }
 
   get template() {
-    return createTripPointTemplate(this.#point, this.#offers);
+    return createTripPointTemplate(this.#point);
   }
 
   #editClickHandler = (evt) => {

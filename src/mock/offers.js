@@ -106,18 +106,7 @@ export const mockOffers = [
   },
   {
     type: 'sightseeing',
-    offers: [
-      {
-        id: 'q5c9f8e9-8af4-11eb-8dcd-0242ac130015',
-        title: 'Guided tour',
-        price: 40
-      },
-      {
-        id: 'r5e0f7g2-8af4-11eb-8dcd-0242ac130016',
-        title: 'Skip-the-line access',
-        price: 70
-      }
-    ]
+    offers: []
   },
   {
     type: 'restaurant',

@@ -3,6 +3,8 @@ import { render, replace, remove } from '../framework/render.js';
 import TripPointView from '../view/trip-point-view.js';
 import EventEditorView from '../view/event-editor-view.js';
 import TripEventsItemView from '../view/trip-events-item-view.js';
+import { UserAction, UpdateType } from '../const.js';
+import { isDatesEqual } from '../utils/point.js';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -35,7 +37,6 @@ export default class TripPointPresenter {
 
     this.#pointComponent = new TripPointView({
       point: this.#point,
-      offers: this.#point.offers,
       onEditButtonClick: () => {
         this.#replacePointToEditor();
         document.addEventListener('keydown', this.#escKeyDownHandler);
@@ -45,14 +46,13 @@ export default class TripPointPresenter {
 
     this.#editorComponent = new EventEditorView({
       point: this.#point,
-      destination: this.#point.destination,
-      offers: this.#point.offers,
       isEventExist: true,
       onEditorSubmit: this.#handlerEditorSubmit,
+      onDeleteClick: this.#handleDeleteClick,
       onCloseButtonClick: this.#handlerCloseButtonClick,
     });
 
-    if (prevPointComponent === null || prevEditorComponent === null) {
+    if (!prevPointComponent || !prevEditorComponent) {
       render(this.#tripPointItem, this.#container.element);
       render(this.#pointComponent, this.#tripPointItem.element);
       return;
@@ -103,13 +103,30 @@ export default class TripPointPresenter {
   };
 
   #handleFavoriteClick = () => {
-    this.#handleDataChange({...this.#point, isFavorite: !this.#point.isFavorite});
+    this.#handleDataChange(
+      UserAction.UPDATE_POINT,
+      UpdateType.PATCH,
+      { ...this.#point, isFavorite: !this.#point.isFavorite }
+    );
   };
 
-  #handlerEditorSubmit = (point) => {
-    this.#handleDataChange(point);
+  #handlerEditorSubmit = (updatedPoint) => {
+    const isMinorUpdate = !isDatesEqual(this.#point.dueDate, updatedPoint.dueDate);
+    this.#handleDataChange(
+      UserAction.UPDATE_POINT,
+      isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH,
+      updatedPoint,
+    );
     this.#replaceEditorToPoint();
     document.removeEventListener('keydown', this.#escKeyDownHandler);
+  };
+
+  #handleDeleteClick = (point) => {
+    this.#handleDataChange(
+      UserAction.DELETE_POINT,
+      UpdateType.MINOR,
+      point,
+    );
   };
 
   #handlerCloseButtonClick = (evt) => {

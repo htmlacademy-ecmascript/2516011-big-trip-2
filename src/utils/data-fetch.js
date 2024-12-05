@@ -6,6 +6,21 @@ const getOffersByType = (type) => {
   return offers ? offers.offers : [];
 };
 
-const getDestinationDetails = (destinationId) => mockDestinations.find((destination) => destination.id === destinationId) || null;
+const getOfferById = (id) => {
+  for (const category of mockOffers) {
+    const offer = category.offers.find((item) => item.id === id);
+    if (offer) {
+      return offer;
+    }
+  }
+  return null;
+};
 
-export {getOffersByType, getDestinationDetails};
+const getDestinationDetails = (destinationName) => {
+  const destinations = mockDestinations.find((destination) => destination.name === destinationName);
+  return destinations || null;
+};
+
+const getDestinationNames = () => mockDestinations.map((destination) => destination.name);
+
+export {getOffersByType, getOfferById, getDestinationDetails, getDestinationNames};

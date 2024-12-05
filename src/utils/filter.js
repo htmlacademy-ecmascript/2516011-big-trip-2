@@ -1,5 +1,5 @@
 import {FilterType} from '../const';
-import {isPointInFuture, isPointInPresent, isPointInPast } from './task';
+import {isPointInFuture, isPointInPresent, isPointInPast } from './point';
 
 const filter = {
   [FilterType.EVERYTHING]: (points) => points,

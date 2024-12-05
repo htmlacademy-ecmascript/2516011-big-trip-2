@@ -24,4 +24,8 @@ const sortPointByDay = (a, b) => new Date(a.dateFrom) - new Date(b.dateFrom);
 const sortPointByTime = (a, b) => (new Date(b.dateTo) - new Date(b.dateFrom)) - (new Date(a.dateTo) - new Date(a.dateFrom));
 const sortPointByPrice = (a, b) => b.basePrice - a.basePrice;
 
-export { humanizePointDueDate, getFormattedDuration, isPointInFuture, isPointInPresent, isPointInPast, sortPointByDay, sortPointByTime, sortPointByPrice };
+function isDatesEqual(dateA, dateB) {
+  return (dateA === null && dateB === null) || dayjs(dateA).isSame(dateB, 'D');
+}
+
+export { humanizePointDueDate, getFormattedDuration, isPointInFuture, isPointInPresent, isPointInPast, sortPointByDay, sortPointByTime, sortPointByPrice, isDatesEqual };
