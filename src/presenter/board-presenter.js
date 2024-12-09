@@ -70,6 +70,7 @@ export default class BoardPresenter {
       onClick: this.#handleNewPointButtonClick
     });
     render(this.#newPointButtonComponent, siteHeaderElement);
+
     render(new TripInfoView({points: this.#pointsModel.pointsWithDetails}), siteHeaderElement, RenderPosition.AFTERBEGIN);
   }
 
@@ -125,9 +126,6 @@ export default class BoardPresenter {
   }
 
   #renderNoPoints() {
-    this.#noPointsComponent = new MessageView({
-      filterType: this.#filterType
-    });
     render(this.#noPointsComponent, this.#container);
   }
 
@@ -136,6 +134,10 @@ export default class BoardPresenter {
       render(this.#loadingMessageComponent, this.#container);
       return;
     }
+
+    this.#noPointsComponent = new MessageView({
+      filterType: this.#filterType
+    });
 
     const points = this.pointsWithDetails;
 
@@ -210,6 +212,7 @@ export default class BoardPresenter {
       case UpdateType.INIT:
         this.#isLoading = false;
         remove(this.#loadingMessageComponent);
+        this.#renderBoard();
         break;
     }
   };
