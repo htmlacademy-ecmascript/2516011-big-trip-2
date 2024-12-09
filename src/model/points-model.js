@@ -1,22 +1,16 @@
 import Observable from '../framework/observable.js';
 import {UpdateType} from '../const.js';
-//import { mockDestinations } from '../mock/destinations.js';
-//import { mockOffers } from '../mock/offers.js';
 
 export default class PointsModel extends Observable {
   #pointsApiService = null;
   #points = [];
-  #pointsWithDetails = null;
-  #destinations = null;
-  #offers = null;
+  #pointsWithDetails = [];
+  #destinations = [];
+  #offers = [];
 
   constructor({pointsApiService}) {
     super();
     this.#pointsApiService = pointsApiService;
-    this.#points = [];
-    this.#pointsWithDetails = [];
-    this.#destinations = [];
-    this.#offers = [];
   }
 
   get destinations() {
@@ -50,9 +44,16 @@ export default class PointsModel extends Observable {
     try {
       const points = await this.#pointsApiService.points;
       this.#points = points.map(this.#adaptToClient);
-      console.log(this.#points);
+
+      const destinations = await this.#pointsApiService.destinations;
+      this.#destinations = destinations;
+
+      const offers = await this.#pointsApiService.offers;
+      this.#offers = offers;
     } catch(err) {
       this.#points = [];
+      this.#destinations = [];
+      this.#offers = [];
     }
 
     this._notify(UpdateType.INIT);
@@ -143,4 +144,26 @@ export default class PointsModel extends Observable {
     delete adaptedPoint['is_favorite'];
     return adaptedPoint;
   }
+
+  getOffersByType = (type) => {
+    const offers = this.#offers.find((offer) => offer.type === type);
+    return offers ? offers.offers : [];
+  };
+
+  getOfferById = (id) => {
+    for (const category of this.#offers) {
+      const offer = category.offers.find((item) => item.id === id);
+      if (offer) {
+        return offer;
+      }
+    }
+    return null;
+  };
+
+  getDestinationDetails = (destinationName) => {
+    const destinations = this.#destinations.find((destination) => destination.name === destinationName);
+    return destinations || null;
+  };
+
+  getDestinationNames = () => this.#destinations.map((destination) => destination.name);
 }

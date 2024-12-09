@@ -23,8 +23,10 @@ export default class BoardPresenter {
   #pointsModel = null;
   #filterModel = null;
   #sortComponent = null;
+  #loadingMessageComponent = new MessageView({ filterType: 'LOADING' });
   #noPointsComponent = null;
   #newPointButtonComponent = null;
+  #isLoading = true;
 
   #currentSortType = SortType.DAY;
   #filterType = FilterType.EVERYTHING;
@@ -122,6 +124,11 @@ export default class BoardPresenter {
   }
 
   #renderBoard() {
+    if (this.#isLoading) {
+      render(this.#loadingMessageComponent, this.#container);
+      return;
+    }
+
     const points = this.pointsWithDetails;
 
     if (!points || points.length === 0) {
@@ -192,8 +199,11 @@ export default class BoardPresenter {
         this.#clearBoard({ resetSortType: true });
         this.#renderBoard();
         break;
-      default:
-        throw new Error(`Unknown update type: ${updateType}`);
+      case UpdateType.INIT:
+        this.#isLoading = false;
+        remove(this.#loadingMessageComponent);
+        this.#renderBoard();
+        break;
     }
   };
 
