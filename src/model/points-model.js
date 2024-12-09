@@ -81,13 +81,8 @@ export default class PointsModel extends Observable {
     }
 
     try {
-      const preparedUpdate = {
-        ...update,
-        destination: update.destination.id,
-        offers: update.offers.map((offer) => offer.id),
-      };
-
-      const response = await this.#PointsWithDetailsApiService.updatePoint(preparedUpdate);
+      const baseUpdate = this._extractBasePointData(update);
+      const response = await this.#PointsWithDetailsApiService.updatePoint(baseUpdate);
 
       const updatedPoint = this.#adaptToClient(response);
       this.#points = [
