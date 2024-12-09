@@ -1,27 +1,21 @@
 import Observable from '../framework/observable.js';
-import { mockDestinations } from '../mock/destinations.js';
-import { mockOffers } from '../mock/offers.js';
-import { mockPoints } from '../mock/points.js';
+//import { mockDestinations } from '../mock/destinations.js';
+//import { mockOffers } from '../mock/offers.js';
+//import { mockPoints } from '../mock/points.js';
 
 export default class PointsModel extends Observable {
+  #pointsApiService = null;
   #points = null;
   #pointsWithDetails = null;
   #destinations = null;
   #offers = null;
 
-  constructor() {
+  constructor({pointsApiService}) {
     super();
-    this.#points = [];
-    this.#pointsWithDetails = [];
-    this.#destinations = [];
-    this.#offers = [];
-  }
-
-  init() {
-    this.#destinations = mockDestinations;
-    this.#offers = mockOffers;
-    this.#points = mockPoints;
-    this.#pointsWithDetails = this.pointsWithDetails;
+    this.#pointsApiService = pointsApiService;
+    this.#pointsApiService.points.then((points) => {
+      console.log(points.map(this.#adaptToClient));
+    });
   }
 
   get destinations() {
@@ -120,5 +114,20 @@ export default class PointsModel extends Observable {
       ...this.#points.slice(index + 1),
     ];
     this._notify(updateType);
+  }
+
+  #adaptToClient(point) {
+    const adaptedPoint = {...point,
+      basePrice: point['base_price'],
+      dateFrom: point['date_from'] !== null ? new Date(point['date_from']) : point['date_from'],
+      dateTo: point['date_to'] !== null ? new Date(point['date_to']) : point['date_to'],
+      isFavorite: point['is_favorite'],
+    };
+
+    delete adaptedPoint['base_price'];
+    delete adaptedPoint['date_from'];
+    delete adaptedPoint['date_to'];
+    delete adaptedPoint['is_favorite'];
+    return adaptedPoint;
   }
 }
