@@ -11,12 +11,23 @@ export default class NewPointPresenter {
   #handleDataChange = null;
   #handleDestroy = null;
   #pointEditComponent = null;
+
+  #getDestinationsNames = null;
+  #getDestinationsDetails = null;
+  #getOfferById = null;
+  #getOffersByType = null;
+
   #tripPointItem = new TripEventsItemView();
 
-  constructor({pointListContainer, onDataChange, onDestroy}) {
+  constructor({pointListContainer, onDataChange, onDestroy, getDestinationsNames, getDestinationsDetails, getOfferById, getOffersByType}) {
     this.#pointListContainer = pointListContainer;
     this.#handleDataChange = onDataChange;
     this.#handleDestroy = onDestroy;
+
+    this.#getDestinationsNames = getDestinationsNames;
+    this.#getDestinationsDetails = getDestinationsDetails;
+    this.#getOfferById = getOfferById;
+    this.#getOffersByType = getOffersByType;
   }
 
   init(destinations) {
@@ -32,6 +43,10 @@ export default class NewPointPresenter {
       container: this.#pointListContainer,
       onEditorSubmit: this.#handleFormSubmit,
       onDeleteClick: this.#handleDeleteClick,
+      getDestinationsNames: this.#getDestinationsNames,
+      getDestinationsDetails: this.#getDestinationsDetails,
+      getOfferById: this.#getOfferById,
+      getOffersByType: this.#getOffersByType,
     });
 
     render(this.#tripPointItem, this.#pointListContainer, RenderPosition.AFTERBEGIN);
@@ -53,8 +68,6 @@ export default class NewPointPresenter {
     this.#handleDataChange(
       UserAction.ADD_POINT,
       UpdateType.MINOR,
-      // Пока у нас нет сервера, который бы после сохранения
-      // выдывал честный id задачи, нам нужно позаботиться об этом самим
       {id: nanoid(), ...point},
     );
     this.destroy();
