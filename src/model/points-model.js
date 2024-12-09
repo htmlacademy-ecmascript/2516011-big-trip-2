@@ -1,11 +1,10 @@
 import Observable from '../framework/observable.js';
-//import { mockDestinations } from '../mock/destinations.js';
-//import { mockOffers } from '../mock/offers.js';
-//import { mockPoints } from '../mock/points.js';
+import { mockDestinations } from '../mock/destinations.js';
+import { mockOffers } from '../mock/offers.js';
 
 export default class PointsModel extends Observable {
   #pointsApiService = null;
-  #points = null;
+  #points = [];
   #pointsWithDetails = null;
   #destinations = null;
   #offers = null;
@@ -13,9 +12,10 @@ export default class PointsModel extends Observable {
   constructor({pointsApiService}) {
     super();
     this.#pointsApiService = pointsApiService;
-    this.#pointsApiService.points.then((points) => {
-      console.log(points.map(this.#adaptToClient));
-    });
+    this.#points = [];
+    this.#pointsWithDetails = [];
+    this.#destinations = [];
+    this.#offers = [];
   }
 
   get destinations() {
@@ -43,6 +43,16 @@ export default class PointsModel extends Observable {
         offers: pointOffers,
       };
     });
+  }
+
+  async init() {
+    try {
+      const points = await this.#pointsApiService.points;
+      this.#points = points.map(this.#adaptToClient);
+      console.log(this.#points);
+    } catch(err) {
+      this.#points = [];
+    }
   }
 
   _extractBasePointData(point) {
