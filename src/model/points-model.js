@@ -50,6 +50,8 @@ export default class PointsModel extends Observable {
 
       const offers = await this.#PointsWithDetailsApiService.offers;
       this.#offers = offers;
+
+      this.#pointsWithDetails = this.pointsWithDetails;
     } catch(err) {
       this.#points = [];
       this.#destinations = [];
@@ -72,23 +74,32 @@ export default class PointsModel extends Observable {
    * @param {string} updateType - Тип обновления.
    * @param {object} update - Обновляемая точка маршрута.
    */
-  updatePoint(updateType, update) {
-    const index = this.#pointsWithDetails.findIndex((point) => point.id === update.id);
+  async updatePoint(updateType, update) {
+    const index = this.#points.findIndex((point) => point.id === update.id);
     if (index === -1) {
       throw new Error('Can\'t update non-existing point');
     }
-    this.#pointsWithDetails = [
-      ...this.#pointsWithDetails.slice(0, index),
-      update,
-      ...this.#pointsWithDetails.slice(index + 1),
-    ];
-    const baseUpdate = this._extractBasePointData(update);
-    this.#points = [
-      ...this.#points.slice(0, index),
-      baseUpdate,
-      ...this.#points.slice(index + 1),
-    ];
-    this._notify(updateType, update);
+
+    try {
+      const preparedUpdate = {
+        ...update,
+        destination: update.destination.id,
+        offers: update.offers.map((offer) => offer.id),
+      };
+
+      const response = await this.#PointsWithDetailsApiService.updatePoint(preparedUpdate);
+
+      const updatedPoint = this.#adaptToClient(response);
+      this.#points = [
+        ...this.#points.slice(0, index),
+        updatedPoint,
+        ...this.#points.slice(index + 1),
+      ];
+
+      this._notify(updateType, update);
+    } catch (err) {
+      throw new Error('Can\'t update task');
+    }
   }
 
   /**
