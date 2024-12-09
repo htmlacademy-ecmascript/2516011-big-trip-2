@@ -1,6 +1,7 @@
 import Observable from '../framework/observable.js';
-import { mockDestinations } from '../mock/destinations.js';
-import { mockOffers } from '../mock/offers.js';
+import {UpdateType} from '../const.js';
+//import { mockDestinations } from '../mock/destinations.js';
+//import { mockOffers } from '../mock/offers.js';
 
 export default class PointsModel extends Observable {
   #pointsApiService = null;
@@ -53,6 +54,8 @@ export default class PointsModel extends Observable {
     } catch(err) {
       this.#points = [];
     }
+
+    this._notify(UpdateType.INIT);
   }
 
   _extractBasePointData(point) {
