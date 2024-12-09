@@ -1,21 +1,8 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view';
 import { POINT_TYPES } from '../const.js';
-import { getOffersByType, getOfferById, getDestinationDetails, getDestinationNames } from '../utils/data-fetch.js';
 import flatpickr from 'flatpickr';
 
 import 'flatpickr/dist/themes/material_blue.css';
-
-const BLANK_POINT = {
-  basePrice: 0,
-  dateFrom: new Date().toISOString(),
-  dateTo: new Date().toISOString(),
-  destination: null,
-  isFavorite: false,
-  offers: getOffersByType('flight'),
-  type: 'flight',
-  typeOffers: null,
-  isEventExist: true
-};
 
 function createEventTypeTemplate(pointId) {
   return POINT_TYPES.map((eventType) => `
@@ -80,7 +67,7 @@ function createPriceInputTemplate(pointId, basePrice) {
 }
 
 
-function createOfferMarkup(offers, type) {
+function createOfferMarkup(offers, type, getOffersByType) {
   const offerExist = getOffersByType(type);
   if (!offerExist || offerExist.length === 0) {
     return '';
@@ -157,7 +144,7 @@ function creatDestinationDescription(destination) {
   `;
 }
 
-function createEventEditorTemplate(data, destinations) {
+function createEventEditorTemplate(data, destinations, getOffersByType) {
   const {
     type,
     basePrice = 0,
@@ -169,7 +156,7 @@ function createEventEditorTemplate(data, destinations) {
   } = data;
 
   const pointId = data.id || 0;
-  const offerMarkup = createOfferMarkup(offers, type);
+  const offerMarkup = createOfferMarkup(offers, type, getOffersByType);
   const destinationDescription = creatDestinationDescription(destination);
   const destinationTemplate = createDestinationTemplate(destination, destinations, type);
   const eventTypeTemplate = createEventTypeTemplate(pointId, type);
@@ -208,28 +195,48 @@ function createEventEditorTemplate(data, destinations) {
 
 export default class EventEditorView extends AbstractStatefulView {
   #handleEditorSubmit = null;
-  #destinations = null;
   #handleCloseButtonClick = null;
   #handleDeleteClick = null;
   #pointId = null;
   #datepickerFrom = null;
   #datepickerTo = null;
+  #destinationsNames = null;
+  #getDestinationsDetails = null;
+  #getOfferById = null;
+  #getOffersByType = null;
 
-  constructor({ point = BLANK_POINT, isEventExist, onEditorSubmit, onCloseButtonClick, onDeleteClick}) {
+  constructor({ point, isEventExist, onEditorSubmit, onCloseButtonClick, onDeleteClick, getDestinationsNames, getDestinationsDetails, getOfferById, getOffersByType}) {
     super();
+    if (!point) {
+      point = {
+        basePrice: 0,
+        dateFrom: new Date().toISOString(),
+        dateTo: new Date().toISOString(),
+        destination: null,
+        isFavorite: false,
+        offers: getOffersByType('flight'),
+        type: 'flight',
+        typeOffers: null,
+        isEventExist: true
+      };
+    }
     this._setState(EventEditorView.parsePointToState(point, isEventExist));
     this.#handleEditorSubmit = onEditorSubmit;
     this.#handleCloseButtonClick = onCloseButtonClick;
     this.#handleDeleteClick = onDeleteClick;
 
-    this.#destinations = getDestinationNames();
+    this.#destinationsNames = getDestinationsNames();
     this.#pointId = point.id || 0;
+
+    this.#getDestinationsDetails = getDestinationsDetails;
+    this.#getOfferById = getOfferById;
+    this.#getOffersByType = getOffersByType;
 
     this._restoreHandlers();
   }
 
   get template() {
-    return createEventEditorTemplate(this._state, this.#destinations);
+    return createEventEditorTemplate(this._state, this.#destinationsNames, this.#getOffersByType);
   }
 
   removeElement() {
@@ -247,7 +254,7 @@ export default class EventEditorView extends AbstractStatefulView {
   }
 
   reset(point, isEventExist) {
-    this.updateElement(EventEditorView.parsePointToState(point, isEventExist));
+    this.updateElement(EventEditorView.parsePointToState(point, isEventExist, this.#getOffersByType));
   }
 
   _restoreHandlers() {
@@ -310,7 +317,7 @@ export default class EventEditorView extends AbstractStatefulView {
   }
 
   #updateDestinationDetails(destinationName) {
-    const updatedDestinations = getDestinationDetails(destinationName);
+    const updatedDestinations = this.#getDestinationsDetails(destinationName);
     if (!updatedDestinations) {
       return;
     }
@@ -325,7 +332,7 @@ export default class EventEditorView extends AbstractStatefulView {
   };
 
   #updateOffersByType(type) {
-    const updatedOffers = getOffersByType(type);
+    const updatedOffers = this.#getOffersByType(type);
     this.updateElement({ offers: updatedOffers });
   }
 
@@ -343,7 +350,7 @@ export default class EventEditorView extends AbstractStatefulView {
     const isChecked = evt.target.checked;
 
     const updatedOffers = isChecked
-      ? [...this._state.offers, getOfferById(offerId)]
+      ? [...this._state.offers, this.#getOfferById(offerId)]
       : this._state.offers.filter((offer) => offer.id !== offerId);
 
     this._setState({ offers: updatedOffers });

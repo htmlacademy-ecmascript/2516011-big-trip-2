@@ -21,12 +21,22 @@ export default class TripPointPresenter {
   #editorComponent = null;
   #tripPointItem = new TripEventsItemView();
 
+  #getDestinationsNames = null;
+  #getDestinationsDetails = null;
+  #getOfferById = null;
+  #getOffersByType = null;
+
   #mode = Mode.DEFAULT;
 
-  constructor({ container, onDataChange, onModeChange }) {
+  constructor({ container, onDataChange, onModeChange, getDestinationsNames, getDestinationsDetails, getOfferById, getOffersByType }) {
     this.#container = container;
     this.#handleDataChange = onDataChange;
     this.#handleModeChange = onModeChange;
+
+    this.#getDestinationsNames = getDestinationsNames;
+    this.#getDestinationsDetails = getDestinationsDetails;
+    this.#getOfferById = getOfferById;
+    this.#getOffersByType = getOffersByType;
   }
 
   init(point) {
@@ -50,6 +60,10 @@ export default class TripPointPresenter {
       onEditorSubmit: this.#handlerEditorSubmit,
       onDeleteClick: this.#handleDeleteClick,
       onCloseButtonClick: this.#handlerCloseButtonClick,
+      getDestinationsNames: this.#getDestinationsNames,
+      getDestinationsDetails: this.#getDestinationsDetails,
+      getOfferById: this.#getOfferById,
+      getOffersByType: this.#getOffersByType,
     });
 
     if (!prevPointComponent || !prevEditorComponent) {

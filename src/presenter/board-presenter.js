@@ -99,7 +99,11 @@ export default class BoardPresenter {
     this.#newTripPointPresenter = new NewPointPresenter({
       pointListContainer: this.#pointListComponent.element,
       onDataChange: this.#handleViewAction,
-      onDestroy: this.#handleNewPointFormClose
+      onDestroy: this.#handleNewPointFormClose,
+      getDestinationsNames: this.#pointsModel.getDestinationsNames,
+      getDestinationsDetails: this.#pointsModel.getDestinationsDetails,
+      getOfferById: this.#pointsModel.getOfferById,
+      getOffersByType: this.#pointsModel.getOffersByType,
     });
 
     this.#newTripPointPresenter.init();
@@ -110,7 +114,11 @@ export default class BoardPresenter {
     const tripPointPresenter = new TripPointPresenter({
       container: this.#pointListComponent,
       onDataChange: this.#handleViewAction,
-      onModeChange: this.#handleModeChange
+      onModeChange: this.#handleModeChange,
+      getDestinationsNames: this.#pointsModel.getDestinationsNames,
+      getDestinationsDetails: this.#pointsModel.getDestinationsDetails,
+      getOfferById: this.#pointsModel.getOfferById,
+      getOffersByType: this.#pointsModel.getOffersByType,
     });
     tripPointPresenter.init(point);
     this.#tripPointPresenters.set(point.id, tripPointPresenter);
@@ -202,7 +210,6 @@ export default class BoardPresenter {
       case UpdateType.INIT:
         this.#isLoading = false;
         remove(this.#loadingMessageComponent);
-        this.#renderBoard();
         break;
     }
   };

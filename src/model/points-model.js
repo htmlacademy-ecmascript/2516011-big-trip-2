@@ -2,7 +2,7 @@ import Observable from '../framework/observable.js';
 import {UpdateType} from '../const.js';
 
 export default class PointsModel extends Observable {
-  #pointsApiService = null;
+  #ApiService = null;
   #points = [];
   #pointsWithDetails = [];
   #destinations = [];
@@ -10,7 +10,7 @@ export default class PointsModel extends Observable {
 
   constructor({pointsApiService}) {
     super();
-    this.#pointsApiService = pointsApiService;
+    this.#ApiService = pointsApiService;
   }
 
   get destinations() {
@@ -42,13 +42,13 @@ export default class PointsModel extends Observable {
 
   async init() {
     try {
-      const points = await this.#pointsApiService.points;
+      const points = await this.#ApiService.points;
       this.#points = points.map(this.#adaptToClient);
 
-      const destinations = await this.#pointsApiService.destinations;
+      const destinations = await this.#ApiService.destinations;
       this.#destinations = destinations;
 
-      const offers = await this.#pointsApiService.offers;
+      const offers = await this.#ApiService.offers;
       this.#offers = offers;
     } catch(err) {
       this.#points = [];
@@ -160,10 +160,10 @@ export default class PointsModel extends Observable {
     return null;
   };
 
-  getDestinationDetails = (destinationName) => {
+  getDestinationsDetails = (destinationName) => {
     const destinations = this.#destinations.find((destination) => destination.name === destinationName);
     return destinations || null;
   };
 
-  getDestinationNames = () => this.#destinations.map((destination) => destination.name);
+  getDestinationsNames = () => this.#destinations.map((destination) => destination.name);
 }

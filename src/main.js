@@ -10,7 +10,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     pointsApiService: new PointsApiService(END_POINT, AUTHORIZATION)
   });
   const boardPresenter = new BoardPresenter({container: siteTripEventsElement, pointsModel: pointsModel});
-
+  await pointsModel.init();
   boardPresenter.init();
-  pointsModel.init();
 });
