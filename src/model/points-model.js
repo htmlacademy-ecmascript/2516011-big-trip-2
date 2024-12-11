@@ -1,27 +1,16 @@
 import Observable from '../framework/observable.js';
-import { mockDestinations } from '../mock/destinations.js';
-import { mockOffers } from '../mock/offers.js';
-import { mockPoints } from '../mock/points.js';
+import {UpdateType} from '../const.js';
 
 export default class PointsModel extends Observable {
-  #points = null;
-  #pointsWithDetails = null;
-  #destinations = null;
-  #offers = null;
+  #PointsWithDetailsApiService = null;
+  #points = [];
+  #pointsWithDetails = [];
+  #destinations = [];
+  #offers = [];
 
-  constructor() {
+  constructor({PointsWithDetailsApiService}) {
     super();
-    this.#points = [];
-    this.#pointsWithDetails = [];
-    this.#destinations = [];
-    this.#offers = [];
-  }
-
-  init() {
-    this.#destinations = mockDestinations;
-    this.#offers = mockOffers;
-    this.#points = mockPoints;
-    this.#pointsWithDetails = this.pointsWithDetails;
+    this.#PointsWithDetailsApiService = PointsWithDetailsApiService;
   }
 
   get destinations() {
@@ -51,6 +40,27 @@ export default class PointsModel extends Observable {
     });
   }
 
+  async init() {
+    try {
+      const points = await this.#PointsWithDetailsApiService.points;
+      this.#points = points.map(this.#adaptToClient);
+
+      const destinations = await this.#PointsWithDetailsApiService.destinations;
+      this.#destinations = destinations;
+
+      const offers = await this.#PointsWithDetailsApiService.offers;
+      this.#offers = offers;
+
+      this.#pointsWithDetails = this.pointsWithDetails;
+    } catch(err) {
+      this.#points = [];
+      this.#destinations = [];
+      this.#offers = [];
+    }
+
+    this._notify(UpdateType.INIT);
+  }
+
   _extractBasePointData(point) {
     return {
       ...point,
@@ -64,23 +74,27 @@ export default class PointsModel extends Observable {
    * @param {string} updateType - Тип обновления.
    * @param {object} update - Обновляемая точка маршрута.
    */
-  updatePoint(updateType, update) {
-    const index = this.#pointsWithDetails.findIndex((point) => point.id === update.id);
+  async updatePoint(updateType, update) {
+    const index = this.#points.findIndex((point) => point.id === update.id);
     if (index === -1) {
       throw new Error('Can\'t update non-existing point');
     }
-    this.#pointsWithDetails = [
-      ...this.#pointsWithDetails.slice(0, index),
-      update,
-      ...this.#pointsWithDetails.slice(index + 1),
-    ];
-    const baseUpdate = this._extractBasePointData(update);
-    this.#points = [
-      ...this.#points.slice(0, index),
-      baseUpdate,
-      ...this.#points.slice(index + 1),
-    ];
-    this._notify(updateType, update);
+
+    try {
+      const baseUpdate = this._extractBasePointData(update);
+      const response = await this.#PointsWithDetailsApiService.updatePoint(baseUpdate);
+
+      const updatedPoint = this.#adaptToClient(response);
+      this.#points = [
+        ...this.#points.slice(0, index),
+        updatedPoint,
+        ...this.#points.slice(index + 1),
+      ];
+
+      this._notify(updateType, update);
+    } catch (err) {
+      throw new Error('Can\'t update task');
+    }
   }
 
   /**
@@ -121,4 +135,41 @@ export default class PointsModel extends Observable {
     ];
     this._notify(updateType);
   }
+
+  #adaptToClient(point) {
+    const adaptedPoint = {...point,
+      basePrice: point['base_price'],
+      dateFrom: point['date_from'] !== null ? new Date(point['date_from']) : point['date_from'],
+      dateTo: point['date_to'] !== null ? new Date(point['date_to']) : point['date_to'],
+      isFavorite: point['is_favorite'],
+    };
+
+    delete adaptedPoint['base_price'];
+    delete adaptedPoint['date_from'];
+    delete adaptedPoint['date_to'];
+    delete adaptedPoint['is_favorite'];
+    return adaptedPoint;
+  }
+
+  getOffersByType = (type) => {
+    const offers = this.#offers.find((offer) => offer.type === type);
+    return offers ? offers.offers : [];
+  };
+
+  getOfferById = (id) => {
+    for (const category of this.#offers) {
+      const offer = category.offers.find((item) => item.id === id);
+      if (offer) {
+        return offer;
+      }
+    }
+    return null;
+  };
+
+  getDestinationsDetails = (destinationName) => {
+    const destinations = this.#destinations.find((destination) => destination.name === destinationName);
+    return destinations || null;
+  };
+
+  getDestinationsNames = () => this.#destinations.map((destination) => destination.name);
 }
