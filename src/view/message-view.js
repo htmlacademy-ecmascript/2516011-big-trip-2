@@ -7,22 +7,23 @@ const EmptyMessage = {
   [FilterType.PAST]: 'There are no past events now',
   [FilterType.PRESENT]: 'There are no present events now',
   LOADING: 'Loading...',
+  FAILURE: 'Failed to load latest route information',
 };
 
-function createMessageTemplate(filterType) {
-  const emptyMessageValue = EmptyMessage[filterType];
+function createMessageTemplate(messageText) {
+  const emptyMessageValue = EmptyMessage[messageText];
   return `<p class="trip-events__msg">${emptyMessageValue}</p>`;
 }
 
 export default class MessageView extends AbstractView {
-  #filterType = null;
+  #messageText = null;
 
-  constructor ({filterType}) {
+  constructor ({messageText}) {
     super();
-    this.#filterType = filterType;
+    this.#messageText = messageText;
   }
 
   get template() {
-    return createMessageTemplate(this.#filterType);
+    return createMessageTemplate(this.#messageText);
   }
 }

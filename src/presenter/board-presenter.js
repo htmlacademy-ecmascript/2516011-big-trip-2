@@ -1,6 +1,9 @@
 import { render, remove } from '../framework/render.js';
 import { SortType, UpdateType, UserAction, FilterType } from '../const.js';
 import { sortPointByDay, sortPointByTime, sortPointByPrice } from '../utils/point.js';
+import {filter} from '../utils/filter.js';
+
+import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 
 import TripEventsListView from '../view/trip-events-list-view.js';
 import SortView from '../view/trip-sort-view.js';
@@ -10,8 +13,12 @@ import TripPointPresenter from './trip-point-presenter.js';
 import FilterPresenter from './filter-presenter.js';
 import NewPointPresenter from './new-point-presenter.js';
 
-import {filter} from '../utils/filter.js';
 import FilterModel from '../model/filter-model.js';
+
+const TimeLimit = {
+  LOWER_LIMIT: 350,
+  UPPER_LIMIT: 1000,
+};
 
 export default class BoardPresenter {
   #container = null;
@@ -19,9 +26,16 @@ export default class BoardPresenter {
   #pointsModel = null;
   #filterModel = null;
   #sortComponent = null;
-  #loadingMessageComponent = new MessageView({ filterType: 'LOADING' });
+  #loadingMessageComponent = new MessageView({ messageText: 'LOADING' });
+  #failureMessageComponent = new MessageView({ messageText: 'FAILURE' });
   #noPointsComponent = null;
   #isLoading = true;
+  #faildToLoadData = false;
+
+  #uiBlocker = new UiBlocker({
+    lowerLimit: TimeLimit.LOWER_LIMIT,
+    upperLimit: TimeLimit.UPPER_LIMIT
+  });
 
   #onNewPointFormClose = null;
   #currentSortType = SortType.DAY;
@@ -123,8 +137,13 @@ export default class BoardPresenter {
       return;
     }
 
+    if (this.#faildToLoadData) {
+      render(this.#failureMessageComponent, this.#container);
+      return;
+    }
+
     this.#noPointsComponent = new MessageView({
-      filterType: this.#filterType
+      messageText: this.#filterType
     });
 
     const points = this.pointsWithDetails;
@@ -163,20 +182,37 @@ export default class BoardPresenter {
    * @param {string} updateType - Тип обновления (например, 'PATCH', 'MINOR').
    * @param {object} update - Обновленные данные точки маршрута.
    */
-  #handleViewAction = (actionType, updateType, update) => {
+  #handleViewAction = async(actionType, updateType, update) => {
+    this.#uiBlocker.block();
     switch (actionType) {
       case UserAction.UPDATE_POINT:
-        this.#pointsModel.updatePoint(updateType, update);
+        this.#tripPointPresenters.get(update.id).setSaving();
+        try {
+          await this.#pointsModel.updatePoint(updateType, update);
+        } catch(err) {
+          this.#tripPointPresenters.get(update.id).setAborting();
+        }
         break;
       case UserAction.ADD_POINT:
-        this.#pointsModel.addPoint(updateType, update);
+        this.#newTripPointPresenter.setSaving();
+        try {
+          await this.#pointsModel.addPoint(updateType, update);
+        } catch(err) {
+          this.#newTripPointPresenter.setAborting();
+        }
         break;
       case UserAction.DELETE_POINT:
-        this.#pointsModel.deletePoint(updateType, update);
+        this.#tripPointPresenters.get(update.id).setDeleting();
+        try {
+          this.#pointsModel.deletePoint(updateType, update);
+        } catch(err) {
+          this.#tripPointPresenters.get(update.id).setAborting();
+        }
         break;
       default:
         throw new Error(`Unknown action type: ${actionType}`);
     }
+    this.#uiBlocker.unblock();
   };
 
   /**
@@ -199,6 +235,12 @@ export default class BoardPresenter {
         break;
       case UpdateType.INIT:
         this.#isLoading = false;
+        remove(this.#loadingMessageComponent);
+        this.#renderBoard();
+        break;
+      case UpdateType.FAILURE:
+        this.#isLoading = false;
+        this.#faildToLoadData = true;
         remove(this.#loadingMessageComponent);
         this.#renderBoard();
         break;

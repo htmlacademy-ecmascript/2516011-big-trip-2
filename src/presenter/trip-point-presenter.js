@@ -76,7 +76,8 @@ export default class TripPointPresenter {
       replace(this.#pointComponent, prevPointComponent);
     }
     if (this.#mode === Mode.EDITING) {
-      replace(this.#editorComponent, prevEditorComponent);
+      replace(this.#pointComponent, prevEditorComponent);
+      this.#mode = Mode.DEFAULT;
     }
 
     remove(prevPointComponent);
@@ -94,6 +95,39 @@ export default class TripPointPresenter {
       this.#editorComponent.reset(this.#point, this.#point.destination, this.#point.offers, true);
       this.#replaceEditorToPoint();
     }
+  }
+
+  setSaving() {
+    if (this.#mode === Mode.EDITING) {
+      this.#editorComponent.updateElement({
+        isDisabled: true,
+        isSaving: true,
+      });
+    }
+  }
+
+  setDeleting() {
+    if (this.#mode === Mode.EDITING) {
+      this.#editorComponent.updateElement({
+        isDisabled: true,
+        isDeleting: true,
+      });
+    }
+  }
+
+  setAborting() {
+    if (this.#mode === Mode.DEFAULT) {
+      this.#pointComponent.shake();
+      return;
+    }
+    const resetFormState = () => {
+      this.#editorComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+    this.#editorComponent.shake(resetFormState);
   }
 
   #replacePointToEditor = () => {
@@ -131,7 +165,6 @@ export default class TripPointPresenter {
       isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH,
       updatedPoint,
     );
-    this.#replaceEditorToPoint();
     document.removeEventListener('keydown', this.#escKeyDownHandler);
   };
 

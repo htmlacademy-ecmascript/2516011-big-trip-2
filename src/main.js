@@ -3,10 +3,10 @@ import {render, RenderPosition} from './framework/render.js';
 import TripInfoView from './view/trip-info-view.js';
 import BoardPresenter from './presenter/board-presenter.js';
 import PointsModel from '../src/model/points-model.js';
-import PointsWithDetailsApiService from './points-api-service.js';
+import PointsWithDetailsApiService from './points-with-details-api-service.js';
 import NewPointButtonView from './view/new-point-button-view.js';
 
-const AUTHORIZATION = 'Basic hS2sfS48wcl1sa2j';
+const AUTHORIZATION = 'Basic hS2sfS6948l1sa2j';
 const END_POINT = 'https://22.objects.htmlacademy.pro/big-trip';
 
 const siteMainElement = document.querySelector('.page-header');
