@@ -52,13 +52,10 @@ export default class PointsModel extends Observable {
       this.#offers = offers;
 
       this.#pointsWithDetails = this.pointsWithDetails;
+      this._notify(UpdateType.INIT);
     } catch(err) {
-      this.#points = [];
-      this.#destinations = [];
-      this.#offers = [];
+      this._notify(UpdateType.FAILURE);
     }
-
-    this._notify(UpdateType.INIT);
   }
 
   _extractBasePointData(point) {

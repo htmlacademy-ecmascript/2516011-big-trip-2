@@ -26,9 +26,12 @@ export default class BoardPresenter {
   #pointsModel = null;
   #filterModel = null;
   #sortComponent = null;
-  #loadingMessageComponent = new MessageView({ filterType: 'LOADING' });
+  #loadingMessageComponent = new MessageView({ messageText: 'LOADING' });
+  #failureMessageComponent = new MessageView({ messageText: 'FAILURE' });
   #noPointsComponent = null;
   #isLoading = true;
+  #faildToLoadData = false;
+
   #uiBlocker = new UiBlocker({
     lowerLimit: TimeLimit.LOWER_LIMIT,
     upperLimit: TimeLimit.UPPER_LIMIT
@@ -134,8 +137,15 @@ export default class BoardPresenter {
       return;
     }
 
+    console.log('щляпа');
+    console.log(this.#faildToLoadData);
+    if (this.#faildToLoadData) {
+      render(this.#failureMessageComponent, this.#container);
+      return;
+    }
+
     this.#noPointsComponent = new MessageView({
-      filterType: this.#filterType
+      messageText: this.#filterType
     });
 
     const points = this.pointsWithDetails;
@@ -227,6 +237,12 @@ export default class BoardPresenter {
         break;
       case UpdateType.INIT:
         this.#isLoading = false;
+        remove(this.#loadingMessageComponent);
+        this.#renderBoard();
+        break;
+      case UpdateType.FAILURE:
+        this.#isLoading = false;
+        this.#faildToLoadData = true;
         remove(this.#loadingMessageComponent);
         this.#renderBoard();
         break;
