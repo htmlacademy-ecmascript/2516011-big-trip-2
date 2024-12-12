@@ -1,6 +1,9 @@
 import { render, remove } from '../framework/render.js';
 import { SortType, UpdateType, UserAction, FilterType } from '../const.js';
 import { sortPointByDay, sortPointByTime, sortPointByPrice } from '../utils/point.js';
+import {filter} from '../utils/filter.js';
+
+import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 
 import TripEventsListView from '../view/trip-events-list-view.js';
 import SortView from '../view/trip-sort-view.js';
@@ -10,8 +13,12 @@ import TripPointPresenter from './trip-point-presenter.js';
 import FilterPresenter from './filter-presenter.js';
 import NewPointPresenter from './new-point-presenter.js';
 
-import {filter} from '../utils/filter.js';
 import FilterModel from '../model/filter-model.js';
+
+const TimeLimit = {
+  LOWER_LIMIT: 350,
+  UPPER_LIMIT: 1000,
+};
 
 export default class BoardPresenter {
   #container = null;
@@ -22,6 +29,10 @@ export default class BoardPresenter {
   #loadingMessageComponent = new MessageView({ filterType: 'LOADING' });
   #noPointsComponent = null;
   #isLoading = true;
+  #uiBlocker = new UiBlocker({
+    lowerLimit: TimeLimit.LOWER_LIMIT,
+    upperLimit: TimeLimit.UPPER_LIMIT
+  });
 
   #onNewPointFormClose = null;
   #currentSortType = SortType.DAY;
@@ -164,6 +175,7 @@ export default class BoardPresenter {
    * @param {object} update - Обновленные данные точки маршрута.
    */
   #handleViewAction = async(actionType, updateType, update) => {
+    this.#uiBlocker.block();
     switch (actionType) {
       case UserAction.UPDATE_POINT:
         this.#tripPointPresenters.get(update.id).setSaving();
@@ -192,6 +204,7 @@ export default class BoardPresenter {
       default:
         throw new Error(`Unknown action type: ${actionType}`);
     }
+    this.#uiBlocker.unblock();
   };
 
   /**
