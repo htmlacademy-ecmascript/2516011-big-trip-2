@@ -1,6 +1,5 @@
-import {render, RenderPosition} from './framework/render.js';
+import {render} from './framework/render.js';
 
-import TripInfoView from './view/trip-info-view.js';
 import BoardPresenter from './presenter/board-presenter.js';
 import PointsModel from '../src/model/points-model.js';
 import PointsWithDetailsApiService from './points-with-details-api-service.js';
@@ -16,6 +15,7 @@ const siteTripEventsElement = document.querySelector('.trip-events');
 const pointsModel = new PointsModel({
   PointsWithDetailsApiService: new PointsWithDetailsApiService(END_POINT, AUTHORIZATION)
 });
+
 const boardPresenter = new BoardPresenter({
   container: siteTripEventsElement,
   headerContainer: siteHeaderElement,
@@ -41,6 +41,5 @@ render(newPointButtonComponent, siteHeaderElement);
 pointsModel.init()
   .finally(() => {
     newPointButtonComponent.element.disabled = false;
-    render(new TripInfoView({points: pointsModel.pointsWithDetails}), siteHeaderElement, RenderPosition.AFTERBEGIN);
   });
 boardPresenter.init();
