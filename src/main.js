@@ -37,7 +37,6 @@ function handleNewPointButtonClick () {
 }
 
 render(newPointButtonComponent, siteHeaderElement);
-newPointButtonComponent.element.disabled = true;
 
 pointsModel.init()
   .finally(() => {
