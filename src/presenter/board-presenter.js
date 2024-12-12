@@ -7,7 +7,7 @@ import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 
 import TripInfoView from '../view/trip-info-view.js';
 import TripEventsListView from '../view/trip-events-list-view.js';
-import SortView from '../view/trip-sort-view.js';
+import TripSortView from '../view/trip-sort-view.js';
 import MessageView from '../view/message-view.js';
 
 import TripPointPresenter from './trip-point-presenter.js';
@@ -92,7 +92,7 @@ export default class BoardPresenter {
   }
 
   #renderSort() {
-    this.#sortComponent = new SortView({
+    this.#sortComponent = new TripSortView({
       currentSortType: this.#currentSortType,
       onSortTypeChange: this.#handleSortTypeChange
     });

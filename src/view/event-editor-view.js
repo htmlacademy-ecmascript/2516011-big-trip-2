@@ -26,8 +26,13 @@ function createEventTypeTemplate(pointId, type, isDisabled) {
 }
 
 function createDateInputsTemplate(pointId, dateFrom, dateTo, isDisabled) {
-  const formattedDateFrom = `${new Date(dateFrom).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })} ${new Date(dateFrom).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })}`;
-  const formattedDateTo = `${new Date(dateTo).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })} ${new Date(dateTo).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })}`;
+  let formattedDateFrom = '';
+  let formattedDateTo = '';
+
+  if (dateFrom && dateTo) {
+    formattedDateFrom = `${new Date(dateFrom).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })} ${new Date(dateFrom).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })}`;
+    formattedDateTo = `${new Date(dateTo).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })} ${new Date(dateTo).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })}`;
+  }
 
   return `
     <div class="event__field-group event__field-group--time">
@@ -233,11 +238,11 @@ export default class EventEditorView extends AbstractStatefulView {
     if (!point) {
       point = {
         basePrice: 0,
-        dateFrom: new Date().toISOString(),
-        dateTo: new Date().toISOString(),
+        dateFrom: '',
+        dateTo: '',
         destination: null,
         isFavorite: false,
-        offers: getOffersByType('flight'),
+        offers: [],
         type: 'flight',
         typeOffers: null,
         isEventExist: true
@@ -354,16 +359,10 @@ export default class EventEditorView extends AbstractStatefulView {
     this.#updateDestinationDetails(evt.target.value);
   };
 
-  #updateOffersByType(type) {
-    const updatedOffers = this.#getOffersByType(type);
-    this.updateElement({ offers: updatedOffers });
-  }
-
   #eventTypeChangeHandler = (evt) => {
     this.updateElement({
       type: evt.target.value,
     });
-    this.#updateOffersByType(evt.target.value);
   };
 
   #offerChangeHandler = (evt) => {

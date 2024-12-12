@@ -159,7 +159,7 @@ export default class TripPointPresenter {
   };
 
   #handlerEditorSubmit = (updatedPoint) => {
-    const isMinorUpdate = !isDatesEqual(this.#point.dueDate, updatedPoint.dueDate);
+    const isMinorUpdate = isDatesEqual(this.#point.dueDate, updatedPoint.dueDate);
     this.#handleDataChange(
       UserAction.UPDATE_POINT,
       isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH,
