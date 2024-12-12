@@ -90,7 +90,6 @@ export default class PointsModel extends Observable {
         updatedPoint,
         ...this.#points.slice(index + 1),
       ];
-
       this._notify(updateType, update);
     } catch (err) {
       throw new Error('Can\'t update point');
@@ -106,11 +105,15 @@ export default class PointsModel extends Observable {
     try {
       const baseUpdate = this._extractBasePointData(update);
       const response = await this.#PointsWithDetailsApiService.addPoint(baseUpdate);
-
       const newPoint = this.#adaptToClient(response);
+      const detailedPoint = { ...update, id: newPoint.id };
       this.#points = [
         newPoint,
         ...this.#points,
+      ];
+      this.#pointsWithDetails = [
+        detailedPoint,
+        ...this.#pointsWithDetails,
       ];
       this._notify(updateType, newPoint);
     } catch(err) {
@@ -135,6 +138,10 @@ export default class PointsModel extends Observable {
       this.#points = [
         ...this.#points.slice(0, index),
         ...this.#points.slice(index + 1),
+      ];
+      this.#pointsWithDetails = [
+        ...this.#pointsWithDetails.slice(0, index),
+        ...this.#pointsWithDetails.slice(index + 1),
       ];
       this._notify(updateType);
     } catch(err) {
