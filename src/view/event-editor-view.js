@@ -132,7 +132,7 @@ function createDestinationTemplate(destination, destinations, type, isDisabled) 
 }
 
 function creatDestinationDescription(destination) {
-  if (!destination || destination.length === 0) {
+  if (!destination || !destination.description) {
     return '';
   }
 
