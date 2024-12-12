@@ -137,8 +137,6 @@ export default class BoardPresenter {
       return;
     }
 
-    console.log('щляпа');
-    console.log(this.#faildToLoadData);
     if (this.#faildToLoadData) {
       render(this.#failureMessageComponent, this.#container);
       return;
