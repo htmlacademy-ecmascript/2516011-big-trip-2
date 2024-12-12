@@ -163,19 +163,31 @@ export default class BoardPresenter {
    * @param {string} updateType - Тип обновления (например, 'PATCH', 'MINOR').
    * @param {object} update - Обновленные данные точки маршрута.
    */
-  #handleViewAction = (actionType, updateType, update) => {
+  #handleViewAction = async(actionType, updateType, update) => {
     switch (actionType) {
       case UserAction.UPDATE_POINT:
         this.#tripPointPresenters.get(update.id).setSaving();
-        this.#pointsModel.updatePoint(updateType, update);
+        try {
+          await this.#pointsModel.updatePoint(updateType, update);
+        } catch(err) {
+          this.#tripPointPresenters.get(update.id).setAborting();
+        }
         break;
       case UserAction.ADD_POINT:
         this.#newTripPointPresenter.setSaving();
-        this.#pointsModel.addPoint(updateType, update);
+        try {
+          await this.#pointsModel.addPoint(updateType, update);
+        } catch(err) {
+          this.#newTripPointPresenter.setAborting();
+        }
         break;
       case UserAction.DELETE_POINT:
         this.#tripPointPresenters.get(update.id).setDeleting();
-        this.#pointsModel.deletePoint(updateType, update);
+        try {
+          this.#pointsModel.deletePoint(updateType, update);
+        } catch(err) {
+          this.#tripPointPresenters.get(update.id).setAborting();
+        }
         break;
       default:
         throw new Error(`Unknown action type: ${actionType}`);

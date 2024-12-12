@@ -115,6 +115,21 @@ export default class TripPointPresenter {
     }
   }
 
+  setAborting() {
+    if (this.#mode === Mode.DEFAULT) {
+      this.#pointComponent.shake();
+      return;
+    }
+    const resetFormState = () => {
+      this.#editorComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+    this.#editorComponent.shake(resetFormState);
+  }
+
   #replacePointToEditor = () => {
     replace(this.#editorComponent, this.#pointComponent);
     this.#handleModeChange();
