@@ -16,16 +16,18 @@ const pointsModel = new PointsModel({
   PointsWithDetailsApiService: new PointsWithDetailsApiService(END_POINT, AUTHORIZATION)
 });
 
+const newPointButtonComponent = new NewPointButtonView({
+  onClick: handleNewPointButtonClick
+});
+
 const boardPresenter = new BoardPresenter({
   container: siteTripEventsElement,
   headerContainer: siteHeaderElement,
   pointsModel: pointsModel,
+  newPointButtonComponent: newPointButtonComponent,
   onNewPointFormClose: handleNewPointFormClose,
 });
 
-const newPointButtonComponent = new NewPointButtonView({
-  onClick: handleNewPointButtonClick
-});
 
 function handleNewPointFormClose() {
   newPointButtonComponent.element.disabled = false;

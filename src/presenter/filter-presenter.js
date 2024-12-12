@@ -8,11 +8,13 @@ export default class FilterPresenter {
   #filterModel = null;
   #pointsModel = null;
   #filterComponent = null;
+  #newPointButtonComponent = null;
 
-  constructor({filterContainer, filterModel, pointsModel}) {
+  constructor({filterContainer, filterModel, pointsModel, newPointButtonComponent}) {
     this.#filterContainer = filterContainer;
     this.#filterModel = filterModel;
     this.#pointsModel = pointsModel;
+    this.#newPointButtonComponent = newPointButtonComponent;
     this.#pointsModel.addObserver(this.#handleModelEvent);
     this.#filterModel.addObserver(this.#handleModelEvent);
   }
@@ -49,6 +51,7 @@ export default class FilterPresenter {
     if (this.#filterModel.filter === filterType) {
       return;
     }
+    this.#newPointButtonComponent.element.disabled = false;
     this.#filterModel.setFilter(UpdateType.MAJOR, filterType);
   };
 }

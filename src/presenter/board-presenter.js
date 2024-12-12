@@ -43,13 +43,15 @@ export default class BoardPresenter {
   #filterType = FilterType.EVERYTHING;
   #pointListComponent = new TripEventsListView();
   #TripInfoElement = null;
+  #newPointButtonComponent = null;
   #tripPointPresenters = new Map();
   #newTripPointPresenter = null;
 
-  constructor({ container, headerContainer, pointsModel, onNewPointFormClose }) {
+  constructor({ container, headerContainer, pointsModel, newPointButtonComponent, onNewPointFormClose }) {
     this.#container = container;
     this.#headerContainer = headerContainer;
     this.#pointsModel = pointsModel;
+    this.#newPointButtonComponent = newPointButtonComponent;
     this.#onNewPointFormClose = onNewPointFormClose;
     this.#filterModel = new FilterModel();
 
@@ -83,7 +85,8 @@ export default class BoardPresenter {
     const filterPresenter = new FilterPresenter({
       filterContainer: siteFilterElement,
       filterModel: this.#filterModel,
-      pointsModel: this.#pointsModel
+      pointsModel: this.#pointsModel,
+      newPointButtonComponent: this.#newPointButtonComponent,
     });
     filterPresenter.init();
   }
@@ -266,7 +269,7 @@ export default class BoardPresenter {
     if (this.#currentSortType === sortType) {
       return;
     }
-
+    this.#newPointButtonComponent.element.disabled = false;
     this.#currentSortType = sortType;
     this.#clearBoard();
     this.#renderBoard();
