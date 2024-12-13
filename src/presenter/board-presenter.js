@@ -210,6 +210,7 @@ export default class BoardPresenter {
         this.#newTripPointPresenter.setSaving();
         try {
           await this.#pointsModel.addPoint(updateType, update);
+          this.#newPointButtonComponent.element.disabled = false;
         } catch(err) {
           this.#newTripPointPresenter.setAborting();
         }
