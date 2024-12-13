@@ -1,6 +1,7 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view';
 import { POINT_TYPES } from '../const.js';
 import flatpickr from 'flatpickr';
+import dayjs from 'dayjs';
 
 import 'flatpickr/dist/themes/material_blue.css';
 
@@ -26,13 +27,10 @@ function createEventTypeTemplate(pointId, type, isDisabled) {
 }
 
 function createDateInputsTemplate(pointId, dateFrom, dateTo, isDisabled) {
-  let formattedDateFrom = '';
-  let formattedDateTo = '';
+  const formatDate = (date) => dayjs(date).format('DD/MM/YY HH:mm');
 
-  if (dateFrom && dateTo) {
-    formattedDateFrom = `${new Date(dateFrom).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })} ${new Date(dateFrom).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })}`;
-    formattedDateTo = `${new Date(dateTo).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })} ${new Date(dateTo).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })}`;
-  }
+  const formattedDateFrom = dateFrom ? formatDate(dateFrom) : '';
+  const formattedDateTo = dateTo ? formatDate(dateTo) : '';
 
   return `
     <div class="event__field-group event__field-group--time">
@@ -141,10 +139,16 @@ function creatDestinationDescription(destination) {
     return '';
   }
 
-  const picturesMarkup = destination.pictures && Array.isArray(destination.pictures)
-    ? destination.pictures.map((picture) => `
-        <img class="event__photo" src="${picture.src}" alt="${picture.description}">
-      `).join('')
+  const picturesMarkup = destination.pictures && Array.isArray(destination.pictures) && destination.pictures.length > 0
+    ? `
+      <div class="event__photos-container">
+        <div class="event__photos-tape">
+          ${destination.pictures.map((picture) => `
+            <img class="event__photo" src="${picture.src}" alt="${picture.description}">
+          `).join('')}
+        </div>
+      </div>
+    `
     : '';
 
   return `
@@ -152,9 +156,7 @@ function creatDestinationDescription(destination) {
       <h3 class="event__section-title event__section-title--destination">Destination</h3>
       <p class="event__destination-description">${destination.description || ''}</p>
     </section>
-    <div class="event__photos-container">
-      <div class="event__photos-tape">${picturesMarkup}</div>
-    </div>
+    ${picturesMarkup}
   `;
 }
 
@@ -308,7 +310,7 @@ export default class EventEditorView extends AbstractStatefulView {
     if (dateFromElement) {
       this.#datepickerFrom = flatpickr(dateFromElement, {
         enableTime: true,
-        dateFormat: 'd/m/Y H:i',
+        dateFormat: 'd/m/y H:i',
         defaultDate: this._state.dateFrom,
         onChange: this.#dateFromChangeHandler,
       });
@@ -317,7 +319,7 @@ export default class EventEditorView extends AbstractStatefulView {
     if (dateToElement) {
       this.#datepickerTo = flatpickr(dateToElement, {
         enableTime: true,
-        dateFormat: 'd/m/Y H:i',
+        dateFormat: 'd/m/y H:i',
         defaultDate: this._state.dateTo,
         onChange: this.#dateToChangeHandler,
       });

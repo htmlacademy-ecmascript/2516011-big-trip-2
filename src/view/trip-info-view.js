@@ -1,7 +1,15 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import { sortPointByDay } from '../utils/point.js';
 
-function createTripInfoTemplate(routeName, dates, total) {
+function createTripInfoTemplate(points) {
+  if (!points || points.length === 0) {
+    return '<section class="trip-main__trip-info  trip-info"></section>';
+  }
+
+  const routeName = generateRouteName(points);
+  const dates = formatTripDates(points);
+  const total = calculateTotal(points);
+
   return (`<section class="trip-main__trip-info  trip-info">
             <div class="trip-info__main">
               <h1 class="trip-info__title">${routeName}</h1>
@@ -11,6 +19,20 @@ function createTripInfoTemplate(routeName, dates, total) {
               Total: &euro;&nbsp;<span class="trip-info__cost-value">${total}</span>
             </p>
           </section>`);
+}
+
+function calculateTotal(points) {
+  return points.reduce((total, point) => {
+    let pointTotal = point.basePrice;
+
+    point.offers.forEach((offer) => {
+      if (offer && offer.price) {
+        pointTotal += offer.price;
+      }
+    });
+
+    return total + pointTotal;
+  }, 0);
 }
 
 function generateRouteName(points) {
@@ -51,28 +73,10 @@ export default class TripInfoView extends AbstractView {
 
   constructor({ points }) {
     super();
-    this.#points = [...points].sort(sortPointByDay);
+    this.#points = points ? [...points].sort(sortPointByDay) : [];
   }
 
   get template() {
-    const routeName = generateRouteName(this.#points);
-    const tripDates = formatTripDates(this.#points);
-    const totalCost = this.#calculateTotal();
-
-    return createTripInfoTemplate(routeName, tripDates, totalCost);
-  }
-
-  #calculateTotal() {
-    return this.#points.reduce((total, point) => {
-      let pointTotal = point.basePrice;
-
-      point.offers.forEach((offer) => {
-        if (offer && offer.price) {
-          pointTotal += offer.price;
-        }
-      });
-
-      return total + pointTotal;
-    }, 0);
+    return createTripInfoTemplate(this.#points);
   }
 }
