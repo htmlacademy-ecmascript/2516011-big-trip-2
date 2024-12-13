@@ -7,13 +7,21 @@ const humanizePointDueDate = (dueDate) => dueDate ?
 const getFormattedDuration = (dateFrom, dateTo) => {
   const startDate = dayjs(dateFrom);
   const endDate = dayjs(dateTo);
-  const differenceMinutes = endDate.diff(startDate, 'minute');
 
-  const hours = Math.floor(differenceMinutes / 60);
+  const differenceMinutes = endDate.diff(startDate, 'minute');
+  const days = Math.floor(differenceMinutes / 1440);
+  const hours = Math.floor((differenceMinutes % 1440) / 60);
   const minutes = differenceMinutes % 60;
 
-  return `${hours}H ${minutes}M`;
+  if (days > 0) {
+    return `${days.toString().padStart(2, '0')}D ${hours.toString().padStart(2, '0')}H ${minutes.toString().padStart(2, '0')}M`;
+  }
+  if (hours > 0) {
+    return `${hours.toString().padStart(2, '0')}H ${minutes.toString().padStart(2, '0')}M`;
+  }
+  return `${minutes.toString().padStart(2, '0')}M`;
 };
+
 
 const isPointInFuture = (point) => dayjs(point.dateFrom).isAfter(dayjs());
 const isPointInPresent = (point) =>

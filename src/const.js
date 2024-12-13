@@ -1,3 +1,6 @@
+const AUTHORIZATION = 'Basic hS2sfS6948l1sa2j';
+const END_POINT = 'https://22.objects.htmlacademy.pro/big-trip';
+
 const POINT_TYPES = ['taxi', 'bus', 'train', 'ship', 'drive', 'flight', 'check-in', 'sightseeing', 'restaurant'];
 
 const FilterType = {
@@ -5,6 +8,15 @@ const FilterType = {
   FUTURE: 'future',
   PRESENT: 'present',
   PAST: 'past',
+};
+
+const EmptyMessage = {
+  [FilterType.EVERYTHING]: 'Click New Event to create your first point',
+  [FilterType.FUTURE]: 'There are no future events now',
+  [FilterType.PAST]: 'There are no past events now',
+  [FilterType.PRESENT]: 'There are no present events now',
+  LOADING: 'Loading...',
+  FAILURE: 'Failed to load latest route information',
 };
 
 const SortType = {
@@ -29,4 +41,4 @@ const UpdateType = {
   FAILURE: 'FAILURE',
 };
 
-export { POINT_TYPES, FilterType, SortType, UserAction, UpdateType };
+export { AUTHORIZATION, END_POINT, POINT_TYPES, FilterType, EmptyMessage, SortType, UserAction, UpdateType };
