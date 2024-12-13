@@ -1,3 +1,6 @@
+const AUTHORIZATION = 'Basic hS2sfS6948l1sa2j';
+const END_POINT = 'https://22.objects.htmlacademy.pro/big-trip';
+
 const POINT_TYPES = ['taxi', 'bus', 'train', 'ship', 'drive', 'flight', 'check-in', 'sightseeing', 'restaurant'];
 
 const FilterType = {
@@ -38,4 +41,4 @@ const UpdateType = {
   FAILURE: 'FAILURE',
 };
 
-export { POINT_TYPES, FilterType, EmptyMessage, SortType, UserAction, UpdateType };
+export { AUTHORIZATION, END_POINT, POINT_TYPES, FilterType, EmptyMessage, SortType, UserAction, UpdateType };

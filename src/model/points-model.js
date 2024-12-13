@@ -125,6 +125,7 @@ export default class PointsModel extends Observable {
    */
   async deletePoint(updateType, update) {
     const index = this.#pointsWithDetails.findIndex((point) => point.id === update.id);
+
     if (index === -1) {
       throw new Error('Can\'t delete non-existing point');
     }

@@ -218,7 +218,7 @@ export default class BoardPresenter {
       case UserAction.DELETE_POINT:
         this.#tripPointPresenters.get(update.id).setDeleting();
         try {
-          this.#pointsModel.deletePoint(updateType, update);
+          await this.#pointsModel.deletePoint(updateType, update);
         } catch(err) {
           this.#tripPointPresenters.get(update.id).setAborting();
         }
