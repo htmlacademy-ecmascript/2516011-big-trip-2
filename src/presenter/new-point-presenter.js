@@ -1,5 +1,5 @@
 import {remove, render, RenderPosition} from '../framework/render.js';
-import {UserAction, UpdateType} from '../const.js';
+import {ESC_KEYS, UserAction, UpdateType} from '../const.js';
 
 import EventEditorView from '../view/event-editor-view.js';
 import TripEventsItemView from '../view/trip-events-item-view.js';
@@ -94,7 +94,7 @@ export default class NewPointPresenter {
   };
 
   #escKeyDownHandler = (evt) => {
-    if (evt.key === 'Escape' || evt.key === 'Esc') {
+    if (ESC_KEYS.includes(evt.key)) {
       evt.preventDefault();
       this.destroy();
     }

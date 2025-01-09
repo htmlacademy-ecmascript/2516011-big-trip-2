@@ -3,13 +3,8 @@ import { render, replace, remove } from '../framework/render.js';
 import TripPointView from '../view/trip-point-view.js';
 import EventEditorView from '../view/event-editor-view.js';
 import TripEventsItemView from '../view/trip-events-item-view.js';
-import { UserAction, UpdateType } from '../const.js';
+import {UserAction, UpdateType, ESC_KEYS, EditMode} from '../const.js';
 import { isDatesEqual } from '../utils/point.js';
-
-const Mode = {
-  DEFAULT: 'DEFAULT',
-  EDITING: 'EDITING',
-};
 
 export default class TripPointPresenter {
   #point = null;
@@ -26,7 +21,7 @@ export default class TripPointPresenter {
   #getOfferById = null;
   #getOffersByType = null;
 
-  #mode = Mode.DEFAULT;
+  #mode = EditMode.DEFAULT;
 
   constructor({ container, onDataChange, onModeChange, getDestinationsNames, getDestinationsDetails, getOfferById, getOffersByType }) {
     this.#container = container;
@@ -72,12 +67,12 @@ export default class TripPointPresenter {
       return;
     }
 
-    if (this.#mode === Mode.DEFAULT) {
+    if (this.#mode === EditMode.DEFAULT) {
       replace(this.#pointComponent, prevPointComponent);
     }
-    if (this.#mode === Mode.EDITING) {
+    if (this.#mode === EditMode.EDITING) {
       replace(this.#pointComponent, prevEditorComponent);
-      this.#mode = Mode.DEFAULT;
+      this.#mode = EditMode.DEFAULT;
     }
 
     remove(prevPointComponent);
@@ -91,14 +86,14 @@ export default class TripPointPresenter {
   }
 
   resetView() {
-    if (this.#mode !== Mode.DEFAULT) {
+    if (this.#mode !== EditMode.DEFAULT) {
       this.#editorComponent.reset(this.#point, this.#point.destination, this.#point.offers, true);
       this.#replaceEditorToPoint();
     }
   }
 
   setSaving() {
-    if (this.#mode === Mode.EDITING) {
+    if (this.#mode === EditMode.EDITING) {
       this.#editorComponent.updateElement({
         isDisabled: true,
         isSaving: true,
@@ -107,7 +102,7 @@ export default class TripPointPresenter {
   }
 
   setDeleting() {
-    if (this.#mode === Mode.EDITING) {
+    if (this.#mode === EditMode.EDITING) {
       this.#editorComponent.updateElement({
         isDisabled: true,
         isDeleting: true,
@@ -116,7 +111,7 @@ export default class TripPointPresenter {
   }
 
   setAborting() {
-    if (this.#mode === Mode.DEFAULT) {
+    if (this.#mode === EditMode.DEFAULT) {
       this.#pointComponent.shake();
       return;
     }
@@ -133,16 +128,16 @@ export default class TripPointPresenter {
   #replacePointToEditor = () => {
     replace(this.#editorComponent, this.#pointComponent);
     this.#handleModeChange();
-    this.#mode = Mode.EDITING;
+    this.#mode = EditMode.EDITING;
   };
 
   #replaceEditorToPoint = () => {
     replace(this.#pointComponent, this.#editorComponent);
-    this.#mode = Mode.DEFAULT;
+    this.#mode = EditMode.DEFAULT;
   };
 
   #escKeyDownHandler = (evt) => {
-    if (evt.key === 'Escape') {
+    if (ESC_KEYS.includes(evt.key)) {
       evt.preventDefault();
       this.#editorComponent.reset(this.#point, this.#point.destination, this.#point.offers, true);
       this.#replaceEditorToPoint();

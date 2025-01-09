@@ -1,5 +1,5 @@
 import { render, RenderPosition, remove } from '../framework/render.js';
-import { SortType, UpdateType, UserAction, FilterType } from '../const.js';
+import { SortType, UpdateType, UserAction, FilterType, TimeLimit } from '../const.js';
 import { sortPointByDay, sortPointByTime, sortPointByPrice } from '../utils/point.js';
 import {filter} from '../utils/filter.js';
 
@@ -16,11 +16,6 @@ import NewPointPresenter from './new-point-presenter.js';
 
 import FilterModel from '../model/filter-model.js';
 
-const TimeLimit = {
-  LOWER_LIMIT: 350,
-  UPPER_LIMIT: 1000,
-};
-
 export default class BoardPresenter {
   #container = null;
   #headerContainer = null;
@@ -31,7 +26,7 @@ export default class BoardPresenter {
   #failureMessageComponent = new MessageView({ messageText: 'FAILURE' });
   #noPointsComponent = null;
   #isLoading = true;
-  #faildToLoadData = false;
+  #failedToLoadData = false;
 
   #uiBlocker = new UiBlocker({
     lowerLimit: TimeLimit.LOWER_LIMIT,
@@ -47,11 +42,12 @@ export default class BoardPresenter {
   #tripPointPresenters = new Map();
   #newTripPointPresenter = null;
 
-  constructor({ container, headerContainer, pointsModel, newPointButtonComponent, onNewPointFormClose }) {
+  constructor({ container, headerContainer, pointsModel, newPointButtonComponent, noPointsComponent, onNewPointFormClose }) {
     this.#container = container;
     this.#headerContainer = headerContainer;
     this.#pointsModel = pointsModel;
     this.#newPointButtonComponent = newPointButtonComponent;
+    this.#noPointsComponent = noPointsComponent;
     this.#onNewPointFormClose = onNewPointFormClose;
     this.#filterModel = new FilterModel();
 
@@ -114,6 +110,10 @@ export default class BoardPresenter {
       getOffersByType: this.#pointsModel.getOffersByType,
     });
 
+    if (this.#noPointsComponent) {
+      remove(this.#noPointsComponent);
+    }
+
     this.#newTripPointPresenter.init();
   }
 
@@ -132,10 +132,6 @@ export default class BoardPresenter {
     this.#tripPointPresenters.set(point.id, tripPointPresenter);
   }
 
-  #renderNoPoints() {
-    render(this.#noPointsComponent, this.#container);
-  }
-
   #renderInfo(points) {
     this.#TripInfoElement = new TripInfoView({points: points});
     render(this.#TripInfoElement, this.#headerContainer, RenderPosition.AFTERBEGIN);
@@ -147,7 +143,7 @@ export default class BoardPresenter {
       return;
     }
 
-    if (this.#faildToLoadData) {
+    if (this.#failedToLoadData) {
       render(this.#failureMessageComponent, this.#container);
       return;
     }
@@ -161,7 +157,7 @@ export default class BoardPresenter {
     this.#renderInfo(points);
 
     if (!points || points.length === 0) {
-      this.#renderNoPoints();
+      render(this.#noPointsComponent, this.#container);
       return;
     }
 
@@ -254,7 +250,7 @@ export default class BoardPresenter {
         break;
       case UpdateType.FAILURE:
         this.#isLoading = false;
-        this.#faildToLoadData = true;
+        this.#failedToLoadData = true;
         remove(this.#loadingMessageComponent);
         this.#renderBoard();
         break;

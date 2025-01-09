@@ -1,13 +1,34 @@
 const AUTHORIZATION = 'Basic hS2sfS6948l1sa2j';
 const END_POINT = 'https://22.objects.htmlacademy.pro/big-trip';
+const DATE_FORMAT = 'DD/MM/YY HH:mm';
+const FLATPICKR_DATE_FORMAT = 'd/m/y H:i';
 
 const POINT_TYPES = ['taxi', 'bus', 'train', 'ship', 'drive', 'flight', 'check-in', 'sightseeing', 'restaurant'];
+
+const ESC_KEYS = ['Escape', 'Esc'];
+
+const Method = {
+  GET: 'GET',
+  PUT: 'PUT',
+  POST: 'POST',
+  DELETE: 'DELETE',
+};
 
 const FilterType = {
   EVERYTHING: 'everything',
   FUTURE: 'future',
   PRESENT: 'present',
   PAST: 'past',
+};
+
+const TimeLimit = {
+  LOWER_LIMIT: 350,
+  UPPER_LIMIT: 1000,
+};
+
+const EditMode = {
+  DEFAULT: 'DEFAULT',
+  EDITING: 'EDITING',
 };
 
 const EmptyMessage = {
@@ -41,4 +62,4 @@ const UpdateType = {
   FAILURE: 'FAILURE',
 };
 
-export { AUTHORIZATION, END_POINT, POINT_TYPES, FilterType, EmptyMessage, SortType, UserAction, UpdateType };
+export { AUTHORIZATION, END_POINT, DATE_FORMAT, FLATPICKR_DATE_FORMAT, POINT_TYPES, ESC_KEYS, Method, EditMode, FilterType, TimeLimit, EmptyMessage, SortType, UserAction, UpdateType };
