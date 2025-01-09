@@ -1,8 +1,4 @@
 import dayjs from 'dayjs';
-const DATE_FORMAT = 'D MMMM';
-
-const humanizePointDueDate = (dueDate) => dueDate ?
-  dayjs(dueDate).format(DATE_FORMAT) : '';
 
 const getFormattedDuration = (dateFrom, dateTo) => {
   const startDate = dayjs(dateFrom);
@@ -24,16 +20,15 @@ const getFormattedDuration = (dateFrom, dateTo) => {
 
 
 const isPointInFuture = (point) => dayjs(point.dateFrom).isAfter(dayjs());
-const isPointInPresent = (point) =>
-  dayjs(point.dateFrom).isBefore(dayjs()) && dayjs(point.dateTo).isAfter(dayjs());
+const isPointInPresent = (point) => dayjs(point.dateFrom).isBefore(dayjs()) && dayjs(point.dateTo).isAfter(dayjs());
 const isPointInPast = (point) => dayjs(point.dateTo).isBefore(dayjs());
 
-const sortPointByDay = (a, b) => new Date(a.dateFrom) - new Date(b.dateFrom);
-const sortPointByTime = (a, b) => (new Date(b.dateTo) - new Date(b.dateFrom)) - (new Date(a.dateTo) - new Date(a.dateFrom));
-const sortPointByPrice = (a, b) => b.basePrice - a.basePrice;
+const sortPointByDay = (firstPoint, secondPoint) => new Date(firstPoint.dateFrom) - new Date(secondPoint.dateFrom);
+const sortPointByTime = (firstPoint, secondPoint) => (new Date(secondPoint.dateTo) - new Date(secondPoint.dateFrom)) - (new Date(firstPoint.dateTo) - new Date(firstPoint.dateFrom));
+const sortPointByPrice = (firstPoint, secondPoint) => secondPoint.basePrice - firstPoint.basePrice;
 
 function isDatesEqual(dateA, dateB) {
   return (dateA === null && dateB === null) || dayjs(dateA).isSame(dateB, 'D');
 }
 
-export { humanizePointDueDate, getFormattedDuration, isPointInFuture, isPointInPresent, isPointInPast, sortPointByDay, sortPointByTime, sortPointByPrice, isDatesEqual };
+export { getFormattedDuration, isPointInFuture, isPointInPresent, isPointInPast, sortPointByDay, sortPointByTime, sortPointByPrice, isDatesEqual };

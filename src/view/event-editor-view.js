@@ -1,5 +1,5 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view';
-import { POINT_TYPES } from '../const.js';
+import {DATE_FORMAT, FLATPICKR_DATE_FORMAT, POINT_TYPES} from '../const.js';
 import flatpickr from 'flatpickr';
 import dayjs from 'dayjs';
 
@@ -27,7 +27,7 @@ function createEventTypeTemplate(pointId, type, isDisabled) {
 }
 
 function createDateInputsTemplate(pointId, dateFrom, dateTo, isDisabled) {
-  const formatDate = (date) => dayjs(date).format('DD/MM/YY HH:mm');
+  const formatDate = (date) => dayjs(date).format(DATE_FORMAT);
 
   const formattedDateFrom = dateFrom ? formatDate(dateFrom) : '';
   const formattedDateTo = dateTo ? formatDate(dateTo) : '';
@@ -78,12 +78,12 @@ function createPriceInputTemplate(pointId, basePrice, isDisabled) {
 
 
 function createOfferMarkup(offers, type, getOffersByType, isDisabled) {
-  const offerExist = getOffersByType(type);
-  if (!offerExist || offerExist.length === 0) {
+  const availableOffers = getOffersByType(type);
+  if (!availableOffers || availableOffers.length === 0) {
     return '';
   }
 
-  const offerLabels = offerExist.map((offer) =>
+  const offerLabels = availableOffers.map((offer) =>
     `<div class="event__offer-selector">
       <input
         class="event__offer-checkbox visually-hidden"
@@ -182,7 +182,7 @@ function createEventEditorTemplate(data, destinations, getOffersByType) {
   const dateInputsTemplate = createDateInputsTemplate(pointId, dateFrom, dateTo, isDisabled);
   const priceInputTemplate = createPriceInputTemplate(pointId, basePrice, isDisabled);
 
-  const isSubmitDisabled = (dateTo && dateFrom && dateTo === null && dateFrom === null);
+  const isSubmitDisabled = (dateTo && dateFrom && false && false);
 
   return `
     <form class="event event--edit" action="#" method="post">
@@ -310,7 +310,7 @@ export default class EventEditorView extends AbstractStatefulView {
     if (dateFromElement) {
       this.#datepickerFrom = flatpickr(dateFromElement, {
         enableTime: true,
-        dateFormat: 'd/m/y H:i',
+        dateFormat: FLATPICKR_DATE_FORMAT,
         defaultDate: this._state.dateFrom,
         onChange: this.#dateFromChangeHandler,
       });
@@ -319,7 +319,7 @@ export default class EventEditorView extends AbstractStatefulView {
     if (dateToElement) {
       this.#datepickerTo = flatpickr(dateToElement, {
         enableTime: true,
-        dateFormat: 'd/m/y H:i',
+        dateFormat: FLATPICKR_DATE_FORMAT,
         defaultDate: this._state.dateTo,
         onChange: this.#dateToChangeHandler,
       });
@@ -400,7 +400,7 @@ export default class EventEditorView extends AbstractStatefulView {
   #priceChangeHandler = (evt) => {
     evt.preventDefault();
     this._setState({
-      basePrice: Number(evt.target.value.replace(/[^\d]/g, ''))
+      basePrice: Number(evt.target.value.replace(/\D/g, ''))
     });
   };
 
